@@ -5,10 +5,12 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /code
 
+RUN apt-get update
+RUN apt-get install -y build-essential dos2unix libpq-dev
+
 COPY requirements.txt .
 
-RUN apt-get update && apt-get install -y dos2unix \
-	&& pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
