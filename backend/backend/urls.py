@@ -16,7 +16,31 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from rest_framework import routers
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+from file_service.views import (
+    UserViewSet,
+    FileViewSet,
+    DirectoryViewSet,
+    upload,
+    create_user,
+)
+
+
+# Routers provide an easy way of automatically determining the URL conf.
+router = routers.DefaultRouter()
+router.register(r"users", UserViewSet)
+router.register(r"files", FileViewSet)
+router.register(r"directories", DirectoryViewSet)
+
+
 urlpatterns = [
-    path("", include("file_service.urls")),
+    path("", include(router.urls)),
+    path("create_user/", create_user),
+    path("upload", upload),
     path("admin/", admin.site.urls),
-]
+    path("debug-api/", include("rest_framework.urls")),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
