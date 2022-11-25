@@ -1,18 +1,24 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login
 
 from .models import Directory, File, User
 
 # Create your views here.
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from rest_framework import serializers, viewsets
 
 # Serializers define the API representation.
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["url", "username", "email", "is_staff"]
+        fields = ["id", "username", "email", "is_staff", "root_directory"]
+
+    root_directory = serializers.SerializerMethodField()
+
+    def get_root_directory(self, obj):
+        return DirectorySerializer(obj.root_directory).data
 
 
 # ViewSets define the view behavior.
@@ -21,12 +27,12 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-class FileSerializer(serializers.HyperlinkedModelSerializer):
+class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
-        fields = ["user", "url", "name", "size"]
+        fields = ["id", "user", "name", "size"]
 
-    user = UserSerializer()
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
 
 
 class FileViewSet(viewsets.ModelViewSet):
@@ -34,14 +40,15 @@ class FileViewSet(viewsets.ModelViewSet):
     serializer_class = FileSerializer
 
 
-class DirectorySerializer(serializers.HyperlinkedModelSerializer):
+class DirectorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Directory
-        fields = ["user", "url", "name", "parent"]
+        fields = ["id", "user", "name", "parent", "children"]
 
-    parent = serializers.HyperlinkedRelatedField(
-        view_name="directory-detail", read_only=True
-    )
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    parent = serializers.PrimaryKeyRelatedField(queryset=Directory.objects.all())
+    children = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
 
 
 class DirectoryViewSet(viewsets.ModelViewSet):
@@ -49,11 +56,15 @@ class DirectoryViewSet(viewsets.ModelViewSet):
     serializer_class = DirectorySerializer
 
 
-def create_user(request):
-    user = User(username="test", email="test@examepl.com")
-    user.set_password("123")
-    user.save()
-    return HttpResponse("User created")
+def do_login(request):
+    username = request.POST["username"]
+    password = request.POST["password"]
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        login(request, user)
+        return HttpResponse("OK")
+    else:
+        return HttpResponse("Failed")
 
 
 @csrf_exempt
@@ -68,6 +79,23 @@ def upload(request):
     file_instance.file_ref.save(file_name, file)
     file_instance.save()
     return HttpResponse("File uploaded successfully")
+
+
+def __get_directory_structure(directory):
+    directory_structure = {
+        "name": directory.name,
+        "path": directory.get_path(),
+        "children": [],
+    }
+    for child in directory.children.all():
+        directory_structure["children"].append(__get_directory_structure(child))
+    return directory_structure
+
+
+def get_directory_structure(request, user):
+    user = User.objects.get(pk=user)
+    directory_structure = __get_directory_structure(user.root_directory)
+    return JsonResponse(directory_structure)
 
 
 def index(request):
