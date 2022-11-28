@@ -25,7 +25,9 @@ SECRET_KEY = "django-insecure-r+9ar3sex(pcjw^8mq5pk!fui@(0hv79l7vctr-w)k3_9biy92
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
 
 AUTH_USER_MODEL = "file_service.User"
 
@@ -142,6 +144,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
