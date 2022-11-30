@@ -26,8 +26,10 @@ from file_service.views import (
     FileViewSet,
     DirectoryViewSet,
     upload,
+    user,
     do_login,
-    get_directory_structure,
+    get_directory,
+    create_directory,
 )
 
 
@@ -40,12 +42,10 @@ router.register(r"directory", DirectoryViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
-    path(
-        "dir_structure/<int:user>",
-        get_directory_structure,
-        name="get_directory_structure",
-    ),
+    path("get_directory/<int:directory_id>", get_directory),
+    path("create_directory", create_directory),
     path("login", do_login),
+    path("user", user),
     path("upload", upload),
     path("admin/", admin.site.urls),
     path("debug-api/", include("rest_framework.urls")),

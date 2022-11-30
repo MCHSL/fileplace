@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.files.storage import FileSystemStorage
 import hashlib
+
+from mptt.models import MPTTModel, TreeForeignKey
 
 
 class User(AbstractUser):
@@ -22,23 +25,18 @@ def upload_location(instance, filename):
     hasher.update(filename.encode("utf-8"))
     digest = hasher.hexdigest()
 
-    return f"{instance.user.pk}/{digest[0]}/{digest[1]}/{digest}"
+    return f"{digest[0]}/{digest[1]}/{digest}"
 
 
-class Directory(models.Model):
+class Directory(MPTTModel):
     name = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="directories")
-    parent = models.ForeignKey(
+    parent = TreeForeignKey(
         "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children"
     )
 
     def get_path(self):
-        path_parts = [self.name]
-        parent = self.parent
-        while parent:
-            path_parts.append(parent.name)
-            parent = parent.parent
-        return "/".join(reversed(path_parts))
+        return self.get_ancestors(include_self=True)
 
 
 class File(models.Model):
@@ -49,7 +47,7 @@ class File(models.Model):
     name = models.TextField()
     size = models.IntegerField()
 
-    file_ref = models.FileField(upload_to="files")
+    file_ref = models.FileField(upload_to=upload_location)
 
     def get_file_url(self):
         return upload_location(self, self.name)

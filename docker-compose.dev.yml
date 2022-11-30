@@ -18,6 +18,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./backend:/code
+      - ./data/backend:/var/fileplace
     ports:
       - "80:80"
     depends_on:
