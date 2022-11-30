@@ -1,6 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import useDirectory, { Directory } from "../../context/DirectoryContext";
+import useDirectory from "../../context/DirectoryContext";
 
 interface ParentDirectoryListEntryProps {
   id: number;

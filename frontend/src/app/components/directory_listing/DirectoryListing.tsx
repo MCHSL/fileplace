@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  BasicDirectory,
-  Directory,
-  UserFile,
-} from "../../context/DirectoryContext";
+import { BasicDirectory, UserFile } from "../../context/DirectoryContext";
 import DirectoryListEntry from "./DirectoryListEntry";
 import DirectoryPath from "./DirectoryPath";
 import FileListEntry from "./FileListEntry";

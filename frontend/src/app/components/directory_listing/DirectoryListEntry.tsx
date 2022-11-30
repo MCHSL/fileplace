@@ -1,9 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import useDirectory, {
-  BasicDirectory,
-  Directory,
-} from "../../context/DirectoryContext";
+import useDirectory, { BasicDirectory } from "../../context/DirectoryContext";
 
 interface DirectoryListEntryProps {
   directory: BasicDirectory;

@@ -49,9 +49,7 @@ const HomePage = () => {
     const data = new FormData();
     data.append("file", e.target.files[0]);
     data.append("directory", currentDirectory.id.toString());
-    client.post("/upload", data).then((res) => {
-      directoryRefetch();
-    });
+    client.post("/upload", data).then(directoryRefetch);
   };
 
   const createDirectory = () => {

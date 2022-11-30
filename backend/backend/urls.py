@@ -26,6 +26,8 @@ from file_service.views import (
     FileViewSet,
     DirectoryViewSet,
     upload,
+    download,
+    delete_file,
     user,
     do_login,
     get_directory,
@@ -47,6 +49,7 @@ urlpatterns = [
     path("login", do_login),
     path("user", user),
     path("upload", upload),
+    path("download/<int:file_id>", download),
+    path("delete_file", delete_file),
     path("admin/", admin.site.urls),
-    path("debug-api/", include("rest_framework.urls")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

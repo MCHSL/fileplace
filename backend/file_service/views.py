@@ -1,16 +1,13 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login
-
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-from django.views.decorators.vary import vary_on_cookie, vary_on_headers
+from django.core.files.uploadedfile import UploadedFile
 
 from .models import Directory, File, User
 
 # Create your views here.
 
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from rest_framework import serializers, viewsets
 from django.contrib.auth.decorators import login_required
 
@@ -73,15 +70,15 @@ class DirectoryViewSet(viewsets.ModelViewSet):
 
 
 @login_required
-def user(request):
+def user(request: HttpRequest) -> JsonResponse:
     return JsonResponse(UserSerializer(request.user).data)
 
 
 @csrf_exempt
-def do_login(request):
+def do_login(request: HttpRequest) -> HttpResponse:
     data = json.loads(request.body)
-    username = data["username"]
-    password = data["password"]
+    username: str = data["username"]
+    password: str = data["password"]
     user = authenticate(request, username=username, password=password)
     if user is not None:
         login(request, user)
@@ -91,12 +88,12 @@ def do_login(request):
 
 
 @login_required
-def upload(request):
-    file = request.FILES["file"]
+def upload(request: HttpRequest) -> HttpResponse:
+    file: UploadedFile = request.FILES["file"]
     file_name = file.name
     file_size = file.size
-    directory = int(request.POST["directory"])
-    directory = Directory.objects.get(pk=directory)
+    directory_id = int(request.POST["directory"])
+    directory: Directory = Directory.objects.get(pk=directory_id)
     file_instance = File(
         user=request.user, name=file_name, size=file_size, directory=directory
     )
@@ -105,22 +102,48 @@ def upload(request):
     return HttpResponse("File uploaded successfully")
 
 
-def get_directory(request, directory_id):
-    directory = Directory.objects.get(pk=directory_id)
+def download(request: HttpRequest, file_id) -> HttpResponse:
+    file = File.objects.get(pk=file_id)
+    response = HttpResponse(file.file_ref)
+    response["Content-Disposition"] = "attachment; filename=%s" % file.name
+    return response
+
+
+def delete_file(request: HttpRequest) -> HttpResponse:
+    file = File.objects.get(pk=int(json.loads(request.body)["file"]))
+    if file.user != request.user:
+        return HttpResponse("Unauthorized", status=401)
+    file.file_ref.delete()
+    file.delete()
+    return HttpResponse("File deleted successfully")
+
+
+def delete_directory(request: HttpRequest) -> HttpResponse:
+    directory: Directory = Directory.objects.get(
+        pk=int(json.loads(request.body)["directory"])
+    )
+    if directory.user != request.user:
+        return HttpResponse("Unauthorized", status=401)
+    files = File.objects.filter(directory=directory)
+    for file in files:
+        file.file_ref.delete()
+        file.delete()
+    directory.delete()
+    return HttpResponse("Directory deleted successfully")
+
+
+def get_directory(request: HttpRequest, directory_id) -> JsonResponse:
+    directory: Directory = Directory.objects.get(pk=directory_id)
     return JsonResponse(DirectorySerializer(directory).data)
 
 
-def create_directory(request):
+def create_directory(request: HttpRequest) -> HttpResponse:
     data = json.loads(request.body)
-    name = data["name"]
-    parent = data["parent"]
-    parent = Directory.objects.get(pk=parent)
+    name: str = data["name"]
+    parent_id: int = data["parent"]
+    parent: Directory = Directory.objects.get(pk=parent_id)
     if parent.user != request.user:
         return HttpResponse("Unauthorized", status=401)
     directory = Directory(user=request.user, name=name, parent=parent)
     directory.save()
     return HttpResponse("Directory created successfully")
-
-
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
