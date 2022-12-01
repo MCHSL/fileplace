@@ -165,3 +165,6 @@ REST_FRAMEWORK = {
 }
 
 MEDIA_ROOT = "/var/fileplace/media"
+
+LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = "/login"

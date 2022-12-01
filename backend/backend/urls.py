@@ -51,5 +51,4 @@ urlpatterns = [
     path("upload", upload),
     path("download/<int:file_id>", download),
     path("delete_file", delete_file),
-    path("admin/", admin.site.urls),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

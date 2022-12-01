@@ -9,7 +9,16 @@ from .models import Directory, File, User
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from rest_framework import serializers, viewsets
-from django.contrib.auth.decorators import login_required
+
+
+def login_required(func):
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponse(status=401)
+        return func(request, *args, **kwargs)
+
+    return wrapper
+
 
 import json
 
