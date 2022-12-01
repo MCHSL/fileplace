@@ -24,13 +24,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-r+9ar3sex(pcjw^8mq5pk!fui@(0hv79l7vctr-w)k3_9biy92"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://192.168.0.236:5173",
 ]
 CSRF_COOKIE_SECURE = False
 
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     "file_service",
     "rest_framework",
     "mptt",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -57,6 +59,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -95,6 +98,7 @@ DATABASES = {
         "PASSWORD": "haslo123",
         "HOST": "db",
         "PORT": "",
+        "CONN_MAX_AGE": None,
     }
 }
 
@@ -149,11 +153,19 @@ STATIC_ROOT = "./static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://cache:6379",
+    }
+}
+
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://192.168.0.236:5173",
 ]
 
 REST_FRAMEWORK = {
@@ -168,3 +180,12 @@ MEDIA_ROOT = "/var/fileplace/media"
 
 LOGIN_REDIRECT_URL = "/"
 LOGIN_URL = "/login"
+
+if DEBUG:
+    import socket
+
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
+        "127.0.0.1",
+        "10.0.2.2",
+    ]

@@ -13,42 +13,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import include, path
-
-from rest_framework import routers
 
 from django.conf import settings
 from django.conf.urls.static import static
 
-from file_service.views import (
-    UserViewSet,
-    FileViewSet,
-    DirectoryViewSet,
-    upload,
-    download,
-    delete_file,
-    user,
-    do_login,
-    get_directory,
-    create_directory,
-)
-
-
-# Routers provide an easy way of automatically determining the URL conf.
-router = routers.DefaultRouter()
-router.register(r"users", UserViewSet)
-router.register(r"files", FileViewSet)
-router.register(r"directory", DirectoryViewSet)
+import file_service.urls
 
 
 urlpatterns = [
-    path("", include(router.urls)),
-    path("get_directory/<int:directory_id>", get_directory),
-    path("create_directory", create_directory),
-    path("login", do_login),
-    path("user", user),
-    path("upload", upload),
-    path("download/<int:file_id>", download),
-    path("delete_file", delete_file),
+    path("api/", include(file_service.urls)),
+    path("__debug__/", include("debug_toolbar.urls")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -1,23 +1,17 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.core.files.uploadedfile import UploadedFile
+from django.views.decorators.http import require_POST, require_safe
+from django.core.cache import cache
 
 from .models import Directory, File, User
+from .decorators import login_required
 
 # Create your views here.
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from rest_framework import serializers, viewsets
-
-
-def login_required(func):
-    def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return HttpResponse(status=401)
-        return func(request, *args, **kwargs)
-
-    return wrapper
 
 
 import json
@@ -31,22 +25,12 @@ class UserSerializer(serializers.ModelSerializer):
     root_directory = serializers.PrimaryKeyRelatedField(read_only=True)
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
         fields = ["id", "user", "name", "size"]
 
     user = serializers.PrimaryKeyRelatedField(read_only=True)
-
-
-class FileViewSet(viewsets.ModelViewSet):
-    queryset = File.objects.all()
-    serializer_class = FileSerializer
 
 
 class DirectoryBasicSerializer(serializers.ModelSerializer):
@@ -73,17 +57,16 @@ class DirectorySerializer(serializers.ModelSerializer):
         return DirectoryBasicSerializer(obj.get_path(), read_only=True, many=True).data
 
 
-class DirectoryViewSet(viewsets.ModelViewSet):
-    queryset = Directory.objects.all()
-    serializer_class = DirectorySerializer
-
-
 @login_required
 def user(request: HttpRequest) -> JsonResponse:
-    return JsonResponse(UserSerializer(request.user).data)
+    data = cache.get_or_set(
+        f"user:{request.user.pk}", lambda: UserSerializer(request.user).data
+    )
+    return JsonResponse(data)
 
 
 @csrf_exempt
+@require_POST
 def do_login(request: HttpRequest) -> HttpResponse:
     data = json.loads(request.body)
     username: str = data["username"]
@@ -96,7 +79,14 @@ def do_login(request: HttpRequest) -> HttpResponse:
         return HttpResponse("Unauthorized", status=401)
 
 
+@require_POST
+def do_logout(request: HttpRequest) -> HttpResponse:
+    logout(request)
+    return HttpResponse("OK")
+
+
 @login_required
+@require_POST
 def upload(request: HttpRequest) -> HttpResponse:
     file: UploadedFile = request.FILES["file"]
     file_name = file.name
@@ -111,6 +101,7 @@ def upload(request: HttpRequest) -> HttpResponse:
     return HttpResponse("File uploaded successfully")
 
 
+@require_safe
 def download(request: HttpRequest, file_id) -> HttpResponse:
     file = File.objects.get(pk=file_id)
     response = HttpResponse(file.file_ref)
@@ -118,6 +109,7 @@ def download(request: HttpRequest, file_id) -> HttpResponse:
     return response
 
 
+@require_POST
 def delete_file(request: HttpRequest) -> HttpResponse:
     file = File.objects.get(pk=int(json.loads(request.body)["file"]))
     if file.user != request.user:
@@ -127,6 +119,7 @@ def delete_file(request: HttpRequest) -> HttpResponse:
     return HttpResponse("File deleted successfully")
 
 
+@require_POST
 def delete_directory(request: HttpRequest) -> HttpResponse:
     directory: Directory = Directory.objects.get(
         pk=int(json.loads(request.body)["directory"])
@@ -141,11 +134,14 @@ def delete_directory(request: HttpRequest) -> HttpResponse:
     return HttpResponse("Directory deleted successfully")
 
 
+@require_safe
 def get_directory(request: HttpRequest, directory_id) -> JsonResponse:
     directory: Directory = Directory.objects.get(pk=directory_id)
     return JsonResponse(DirectorySerializer(directory).data)
 
 
+@login_required
+@require_POST
 def create_directory(request: HttpRequest) -> HttpResponse:
     data = json.loads(request.body)
     name: str = data["name"]

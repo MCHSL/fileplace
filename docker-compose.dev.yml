@@ -24,3 +24,12 @@ services:
     depends_on:
       - db
     init: true
+
+  cache:
+    image: redis:6.2.6-alpine
+    restart: unless-stopped
+    volumes:
+      - ./data/cache:/data
+      - ./logs/dev/cache:/var/log/redis
+    environment:
+      - REDIS_DB=0
