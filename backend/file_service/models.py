@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.files.storage import FileSystemStorage
 import hashlib
 
 from mptt.models import MPTTModel, TreeForeignKey
@@ -45,7 +44,7 @@ class File(models.Model):
         Directory, on_delete=models.CASCADE, related_name="files", null=True, blank=True
     )
     name = models.TextField()
-    size = models.IntegerField()
+    size = models.BigIntegerField()
 
     file_ref = models.FileField(upload_to=upload_location)
 

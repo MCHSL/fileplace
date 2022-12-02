@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import client from "../../client";
-import useDirectory from "../../context/DirectoryContext";
+import client from "../../../client";
+import useDirectory from "../../../context/DirectoryContext";
 
 const NewDirectoryListEntry = () => {
   const { currentDirectory, directoryRefetch } = useDirectory();

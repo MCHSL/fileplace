@@ -1,12 +1,10 @@
 import React from "react";
-import useDirectory, { BasicDirectory } from "../../context/DirectoryContext";
+import useDirectory from "../../../context/DirectoryContext";
 
-interface DirectoryPathProps {
-  path: BasicDirectory[];
-}
-
-const DirectoryPath = ({ path }: DirectoryPathProps) => {
+const DirectoryPath = () => {
   const { currentDirectory, setCurrentDirectoryId } = useDirectory();
+
+  const path = currentDirectory?.path || [];
 
   const pathElements = path.map((dir) => (
     <span key={dir.id} className="flex gap-1">
@@ -23,6 +21,7 @@ const DirectoryPath = ({ path }: DirectoryPathProps) => {
       <span className="text-gray-500">{">"}</span>
     </span>
   ));
+
   return <div className="text-left flex gap-1">{pathElements}</div>;
 };
 

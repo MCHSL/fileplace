@@ -1,5 +1,5 @@
 import React from "react";
-import useDirectory from "../../context/DirectoryContext";
+import useDirectory from "../../../context/DirectoryContext";
 
 interface ParentDirectoryListEntryProps {
   id: number;

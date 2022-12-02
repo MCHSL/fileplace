@@ -24,8 +24,9 @@ const LoginForm = () => {
     client
       .post("/user/login", values)
       .then(() => {
-        setLoading(false);
-        refetchUser().then(() => navigate("/"));
+        refetchUser()
+          .then(() => navigate("/"))
+          .then(() => setLoading(false));
       })
       .catch(() => {
         setLoading(false);
