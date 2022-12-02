@@ -36,7 +36,7 @@ urlpatterns = (
                 [
                     path("upload", views.upload, name="upload"),
                     path("download/<int:file_id>", views.download, name="download"),
-                    path("delete", views.delete_file, name="delete_file"),
+                    path("delete", views.delete_files, name="delete_files"),
                 ]
             ),
         )

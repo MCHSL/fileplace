@@ -5,7 +5,16 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
-  },
+        extend: {
+            transitionProperty: {
+                height: 'height'
+            }
+        }
+  	},
+  variants: {
+		extend: {
+			display: ["group-hover"],
+		},
+	},
   plugins: [],
 }

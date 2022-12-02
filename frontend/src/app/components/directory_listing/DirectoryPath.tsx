@@ -14,7 +14,7 @@ const DirectoryPath = ({ path }: DirectoryPathProps) => {
         <span className="cursor-default">{dir.name}</span>
       ) : (
         <span
-          className="cursor-pointer underline"
+          className="cursor-pointer underline text-blue-500"
           onClick={() => setCurrentDirectoryId(dir.id)}
         >
           {dir.name}

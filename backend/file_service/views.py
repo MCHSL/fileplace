@@ -1,3 +1,4 @@
+from typing import List
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
@@ -11,7 +12,7 @@ from .decorators import login_required
 # Create your views here.
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from rest_framework import serializers, viewsets
+from rest_framework import serializers
 
 
 import json
@@ -98,7 +99,7 @@ def upload(request: HttpRequest) -> HttpResponse:
     )
     file_instance.file_ref.save(file_name, file)
     file_instance.save()
-    return HttpResponse("File uploaded successfully")
+    return HttpResponse(FileSerializer(file_instance).data)
 
 
 @require_safe
@@ -110,13 +111,39 @@ def download(request: HttpRequest, file_id) -> HttpResponse:
 
 
 @require_POST
-def delete_file(request: HttpRequest) -> HttpResponse:
-    file = File.objects.get(pk=int(json.loads(request.body)["file"]))
-    if file.user != request.user:
-        return HttpResponse("Unauthorized", status=401)
-    file.file_ref.delete()
-    file.delete()
-    return HttpResponse("File deleted successfully")
+def delete_files(request: HttpRequest) -> HttpResponse:
+    errors = []
+    file_ids = json.loads(request.body)["files"]
+
+    for file in File.objects.filter(pk__in=map(int, file_ids)):
+        if file.user != request.user:
+            errors.append(f"File {file.name} does not belong to user {request.user}")
+            continue
+        file.file_ref.delete()
+        file.delete()
+    if not errors:
+        return HttpResponse("Files deleted successfully")
+    else:
+        return HttpResponse(errors, status=400)
+
+
+@require_POST
+def move_files(request: HttpRequest) -> HttpResponse:
+    errors = []
+    file_ids = json.loads(request.body)["files"]
+    directory_id = json.loads(request.body)["directory"]
+    directory = Directory.objects.get(pk=directory_id)
+
+    for file in File.objects.filter(pk__in=map(int, file_ids)):
+        if file.user != request.user:
+            errors.append(f"File {file.name} does not belong to user {request.user}")
+            continue
+        file.directory = directory
+        file.save()
+    if not errors:
+        return HttpResponse("Files moved successfully")
+    else:
+        return HttpResponse(errors, status=400)
 
 
 @require_POST
@@ -151,4 +178,4 @@ def create_directory(request: HttpRequest) -> HttpResponse:
         return HttpResponse("Unauthorized", status=401)
     directory = Directory(user=request.user, name=name, parent=parent)
     directory.save()
-    return HttpResponse("Directory created successfully")
+    return JsonResponse(DirectorySerializer(directory).data)
