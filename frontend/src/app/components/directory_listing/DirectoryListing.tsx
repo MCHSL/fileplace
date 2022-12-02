@@ -1,14 +1,10 @@
-import React, { useCallback } from "react";
-import useDirectory, {
-  BasicDirectory,
-  UserFile,
-} from "../../context/DirectoryContext";
+import React from "react";
+import { BasicDirectory, UserFile } from "../../context/DirectoryContext";
 import useUser from "../../context/UserContext";
-import DirectoryPath from "./DirectoryStuff/DirectoryPath";
-import FileUpload from "./FileUpload/FileUpload";
-import { ScaleLoader } from "react-spinners";
 import DirectoryList from "./DirectoryStuff/DirectoryList";
+import DirectoryPath from "./DirectoryStuff/DirectoryPath";
 import FileList from "./FileStuff/FileList";
+import FileUpload from "./FileUpload/FileUpload";
 
 export interface DirectoryListingProps {
   parentDirectory: BasicDirectory | null;

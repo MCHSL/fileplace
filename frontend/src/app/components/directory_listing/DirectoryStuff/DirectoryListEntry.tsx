@@ -1,10 +1,10 @@
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
+import client from "../../../client";
 import useDirectory, {
   BasicDirectory,
 } from "../../../context/DirectoryContext";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import client from "../../../client";
 
 interface DirectoryListEntryProps {
   directory: BasicDirectory;

@@ -1,11 +1,11 @@
-import React from "react";
-import LoginForm from "./app/components/LoginForm";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { configure } from "axios-hooks";
+import React from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import client from "./app/client";
-import HomePage from "./app/pages/HomePage";
-import { UserProvider } from "./app/context/UserContext";
+import LoginForm from "./app/components/LoginForm";
 import { DirectoryProvider } from "./app/context/DirectoryContext";
+import { UserProvider } from "./app/context/UserContext";
+import HomePage from "./app/pages/HomePage";
 
 configure({
   axios: client,

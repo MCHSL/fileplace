@@ -1,10 +1,8 @@
 import React from "react";
 import useDirectory from "../../../context/DirectoryContext";
 import DirectoryListEntry from "./DirectoryListEntry";
-import NewDirectoryListEntry from "../NewDirectoryListEntry";
+import NewDirectoryListEntry from "./NewDirectoryListEntry";
 import ParentDirectoryListEntry from "./ParentDirectoryListEntry";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const DirectoryList = () => {
   const { currentDirectory, directoryLoading } = useDirectory();

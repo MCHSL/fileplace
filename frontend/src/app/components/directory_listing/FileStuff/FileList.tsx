@@ -1,9 +1,9 @@
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useCallback } from "react";
 import client from "../../../client";
 import useDirectory from "../../../context/DirectoryContext";
 import FileListEntry from "./FileListEntry";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const FileList = () => {
   const { currentDirectory, directoryLoading, directoryRefetch } =

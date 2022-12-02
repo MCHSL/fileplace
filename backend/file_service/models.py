@@ -1,7 +1,7 @@
-from django.db import models
-from django.contrib.auth.models import AbstractUser
 import hashlib
 
+from django.contrib.auth.models import AbstractUser
+from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
 
