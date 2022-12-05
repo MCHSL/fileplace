@@ -6,7 +6,7 @@ import useUser from "../context/UserContext";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { user, userError } = useUser();
+  const { user, userError, userLoading, logout } = useUser();
   const { currentDirectory, setCurrentDirectoryId } = useDirectory();
 
   useEffect(() => {
@@ -19,9 +19,22 @@ const HomePage = () => {
     }
   }, [user, userError]);
 
+  if (userLoading || !user) {
+    return null;
+  }
+
   return (
     <div>
-      <div className="text-right w-full">Logged in as {user?.username}</div>
+      <div className="text-right w-full">
+        Logged in as {user?.username} (
+        <span
+          className="underline text-blue-400 hover:cursor-pointer"
+          onClick={logout}
+        >
+          Logout
+        </span>
+        )
+      </div>
       <div className="flex flex-col gap-1">
         <DirectoryListing />
       </div>

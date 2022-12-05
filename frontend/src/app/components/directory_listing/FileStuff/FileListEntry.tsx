@@ -28,15 +28,15 @@ const FileListEntry = ({ file, checked, setChecked }: FileListEntryProps) => {
   };
 
   let checkClassName =
-    "flex w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 group-hover:flex";
+    "flex w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 group-hover:flex place-self-center";
   if (!checked) {
-    checkClassName += " hidden";
+    checkClassName += " sm:hidden";
   }
 
   return (
     <div
       key={file.id}
-      className="flex flex-row justify-between gap-1 p-1 text-left hover:bg-slate-100 group"
+      className="flex flex-row justify-between align-middle gap-1 p-1 text-left hover:bg-slate-100 group"
     >
       <span className="flex flex-row gap-1 place-self-center">
         <span>
@@ -45,9 +45,9 @@ const FileListEntry = ({ file, checked, setChecked }: FileListEntryProps) => {
           </a>
         </span>
       </span>
-      <span className="place-self-center flex gap-1 align-middle content-center">
+      <span className="flex gap-1 align-middle">
         <span
-          className="hidden text-red-500 group-hover:flex hover:cursor-pointer"
+          className="place-self-center sm:hidden text-red-500 group-hover:flex hover:cursor-pointer"
           onClick={deleteFile}
         >
           <FontAwesomeIcon icon={faTrash} fixedWidth />

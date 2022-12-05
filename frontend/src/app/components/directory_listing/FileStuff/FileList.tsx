@@ -2,13 +2,14 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useCallback } from "react";
 import client from "../../../client";
-import useDirectory from "../../../context/DirectoryContext";
+import { UserFile } from "../../../context/DirectoryContext";
 import FileListEntry from "./FileListEntry";
 
-const FileList = () => {
-  const { currentDirectory, directoryLoading, directoryRefetch } =
-    useDirectory();
+interface FileListProps {
+  files: UserFile[] | null;
+}
 
+const FileList = ({ files }: FileListProps) => {
   const [checkedFiles, setCheckedFiles] = React.useState<Set<number>>(
     new Set()
   );
@@ -33,9 +34,7 @@ const FileList = () => {
     if (checkAll) {
       setCheckedFiles(new Set());
     } else {
-      setCheckedFiles(
-        new Set(currentDirectory?.files.map((file) => file.id) || [])
-      );
+      setCheckedFiles(new Set(files?.map((file) => file.id) || []));
     }
     setCheckAll(!checkAll);
   };
@@ -58,7 +57,7 @@ const FileList = () => {
       });
   };
 
-  if (directoryLoading && !currentDirectory) {
+  if (!files) {
     return (
       <div className="flex flex-col gap-1">
         <div className="flex flex-row justify-between">
@@ -75,13 +74,6 @@ const FileList = () => {
   if (!currentDirectory) {
     return null;
   }
-
-  const {
-    parent: parentDirectory,
-    path,
-    children: directories,
-    files,
-  } = currentDirectory;
 
   return (
     <div className="flex flex-col gap-1">

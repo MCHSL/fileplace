@@ -12,7 +12,7 @@ export interface UserContext {
   userError: boolean;
   user: User | null;
   refetchUser: () => Promise<void>;
-  logout: () => Promise<void>;
+  logout: () => void;
 }
 
 const UserContext = React.createContext<UserContext>({} as UserContext);
@@ -37,9 +37,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const logout = async () => {
-    await client.post("/user/logout");
-    setUser(null);
+  const logout = () => {
+    client.post("/user/logout").then(refetchUser);
   };
 
   useEffect(() => {
