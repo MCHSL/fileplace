@@ -25,6 +25,7 @@ urlpatterns = (
                     ),
                     path("create", views.create_directory, name="create_directory"),
                     path("delete", views.delete_directory, name="delete_directory"),
+                    path("move", views.move_directory, name="move_directory"),
                 ]
             ),
         ),
@@ -37,8 +38,10 @@ urlpatterns = (
                     path("upload", views.upload, name="upload"),
                     path("download/<int:file_id>", views.download, name="download"),
                     path("delete", views.delete_files, name="delete_files"),
+                    path("move", views.move_files, name="move_files"),
                 ]
             ),
         )
     ]
+    + [path("search", views.search_files, name="search_files")]
 )

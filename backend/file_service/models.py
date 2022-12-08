@@ -41,12 +41,18 @@ class Directory(MPTTModel):
 class File(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="files")
     directory = models.ForeignKey(
-        Directory, on_delete=models.CASCADE, related_name="files", null=True, blank=True
+        Directory, on_delete=models.CASCADE, related_name="files", null=False
     )
     name = models.TextField()
     size = models.BigIntegerField()
 
     file_ref = models.FileField(upload_to=upload_location)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            if not self.directory:
+                self.directory = self.user.root_directory
+        super(File, self).save(*args, **kwargs)
 
     def get_file_url(self):
         return upload_location(self, self.name)

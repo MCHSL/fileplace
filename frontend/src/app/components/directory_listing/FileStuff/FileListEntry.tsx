@@ -2,17 +2,21 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import client from "../../../client";
-import useDirectory, { UserFile } from "../../../context/DirectoryContext";
+import { UserFile } from "../../../context/DirectoryContext";
 
 interface FileListEntryProps {
   file: UserFile;
   checked: boolean;
   setChecked: (number, boolean) => void;
+  refetch: () => void;
 }
 
-const FileListEntry = ({ file, checked, setChecked }: FileListEntryProps) => {
-  const { directoryRefetch } = useDirectory();
-
+const FileListEntry = ({
+  file,
+  checked,
+  setChecked,
+  refetch,
+}: FileListEntryProps) => {
   const deleteFile = async () => {
     const ok = window.confirm(
       `Are you sure you want to delete file "${file.name}"?`
@@ -20,7 +24,15 @@ const FileListEntry = ({ file, checked, setChecked }: FileListEntryProps) => {
     if (!ok) {
       return;
     }
-    client.post("/file/delete", { files: [file.id] }).then(directoryRefetch);
+    client.post("/file/delete", { files: [file.id] }).then(refetch);
+  };
+
+  const renameFile = async () => {
+    const newName = window.prompt("Enter new name", file.name);
+    if (!newName) {
+      return;
+    }
+    client.post("/file/rename", { file: file.id, name: newName }).then(refetch);
   };
 
   const onChecked = (e: React.ChangeEvent<HTMLInputElement>) => {

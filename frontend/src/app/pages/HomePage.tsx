@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DirectoryListing from "../components/directory_listing/DirectoryListing";
 import useDirectory from "../context/DirectoryContext";
@@ -8,6 +8,7 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { user, userError, userLoading, logout } = useUser();
   const { currentDirectory, setCurrentDirectoryId } = useDirectory();
+  const [search, setSearch] = useState<string | null>(null);
 
   useEffect(() => {
     if (user && !currentDirectory) {
@@ -34,6 +35,9 @@ const HomePage = () => {
           Logout
         </span>
         )
+      </div>
+      <div>
+        <input type="text" placeholder="Search..." />
       </div>
       <div className="flex flex-col gap-1">
         <DirectoryListing />

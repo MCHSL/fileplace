@@ -2,14 +2,20 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useCallback } from "react";
 import client from "../../../client";
-import { UserFile } from "../../../context/DirectoryContext";
+import { Directory, UserFile } from "../../../context/DirectoryContext";
 import FileListEntry from "./FileListEntry";
 
 interface FileListProps {
+  directoryLoading: boolean;
   files: UserFile[] | null;
+  directoryRefetch: () => void;
 }
 
-const FileList = ({ files }: FileListProps) => {
+const FileList = ({
+  files,
+  directoryLoading,
+  directoryRefetch,
+}: FileListProps) => {
   const [checkedFiles, setCheckedFiles] = React.useState<Set<number>>(
     new Set()
   );
@@ -57,7 +63,7 @@ const FileList = ({ files }: FileListProps) => {
       });
   };
 
-  if (!files) {
+  if (directoryLoading && !files) {
     return (
       <div className="flex flex-col gap-1">
         <div className="flex flex-row justify-between">
@@ -69,10 +75,6 @@ const FileList = ({ files }: FileListProps) => {
         </div>
       </div>
     );
-  }
-
-  if (!currentDirectory) {
-    return null;
   }
 
   return (
@@ -92,19 +94,20 @@ const FileList = ({ files }: FileListProps) => {
             checked={checkAll}
             className="self-center w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             onChange={handleCheckAll}
-            style={{ display: files.length ? "flex" : "none" }}
+            style={{ display: files?.length ? "flex" : "none" }}
           />
         </span>
       </div>
 
       <div className="divide-y border border-x-0 flex flex-col justify-contents-center transition-all duration-500">
-        {files.length ? (
+        {files?.length ? (
           files.map((file) => (
             <FileListEntry
               key={file.id}
               file={file}
               checked={checkedFiles.has(file.id)}
               setChecked={setChecked}
+              refetch={directoryRefetch}
             />
           ))
         ) : (

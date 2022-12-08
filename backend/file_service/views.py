@@ -29,9 +29,17 @@ class UserSerializer(serializers.ModelSerializer):
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
-        fields = ["id", "user", "name", "size"]
+        fields = ["id", "user", "name", "size", "directory", "path"]
 
     user = serializers.PrimaryKeyRelatedField(read_only=True)
+    directory = serializers.PrimaryKeyRelatedField(read_only=True)
+    path = serializers.SerializerMethodField()
+
+    def get_path(self, obj: File):
+        directory: Directory = obj.directory  # type: ignore
+        return DirectoryBasicSerializer(
+            directory.get_path(), read_only=True, many=True
+        ).data
 
 
 class DirectoryBasicSerializer(serializers.ModelSerializer):
@@ -110,6 +118,7 @@ def download(request: HttpRequest, file_id) -> HttpResponse:
     return response
 
 
+@login_required
 @require_POST
 def delete_files(request: HttpRequest) -> HttpResponse:
     errors = []
@@ -127,11 +136,13 @@ def delete_files(request: HttpRequest) -> HttpResponse:
         return HttpResponse(errors, status=400)
 
 
+@login_required
 @require_POST
 def move_files(request: HttpRequest) -> HttpResponse:
     errors = []
-    file_ids = json.loads(request.body)["files"]
-    directory_id = json.loads(request.body)["directory"]
+    req = json.loads(request.body)
+    file_ids = req["files"]
+    directory_id = req["directory"]
     directory = Directory.objects.get(pk=directory_id)
 
     for file in File.objects.filter(pk__in=map(int, file_ids)):
@@ -179,3 +190,32 @@ def create_directory(request: HttpRequest) -> HttpResponse:
     directory = Directory(user=request.user, name=name, parent=parent)
     directory.save()
     return JsonResponse(DirectorySerializer(directory).data)
+
+
+@login_required
+@require_POST
+def move_directory(request: HttpRequest) -> HttpResponse:
+    data = json.loads(request.body)
+    directory_id = data["directory"]
+    parent_id = data["parent"]
+    directory: Directory = Directory.objects.get(pk=directory_id)
+    parent: Directory = Directory.objects.get(pk=parent_id)
+    if directory.user != request.user or parent.user != request.user:
+        return HttpResponse("Unauthorized", status=401)
+    directory.parent = parent
+    directory.save()
+    return JsonResponse(DirectorySerializer(directory).data)
+
+
+@login_required
+@require_safe
+def search_files(request: HttpRequest) -> HttpResponse:
+    query = request.GET["query"]
+    if len(query) < 3:
+        return HttpResponse("Query must be at least 3 characters long", status=400)
+
+    files = File.objects.filter(user=request.user, name__icontains=query)
+    result = {
+        "files": FileSerializer(files, many=True).data,
+    }
+    return JsonResponse(result, safe=False)
