@@ -1,8 +1,9 @@
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faPenSquare } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import client from "../../../client";
 import { UserFile } from "../../../context/DirectoryContext";
+import InlineInput from "../../misc/InlineInput";
 
 interface FileListEntryProps {
   file: UserFile;
@@ -17,6 +18,8 @@ const FileListEntry = ({
   setChecked,
   refetch,
 }: FileListEntryProps) => {
+  const [renaming, setRenaming] = React.useState(false);
+
   const deleteFile = async () => {
     const ok = window.confirm(
       `Are you sure you want to delete file "${file.name}"?`
@@ -27,12 +30,18 @@ const FileListEntry = ({
     client.post("/file/delete", { files: [file.id] }).then(refetch);
   };
 
-  const renameFile = async () => {
-    const newName = window.prompt("Enter new name", file.name);
+  const renameFile = async (newName) => {
     if (!newName) {
       return;
     }
-    client.post("/file/rename", { file: file.id, name: newName }).then(refetch);
+    let originalName = file.name;
+    file.name = newName;
+    client
+      .post("/file/rename", { file: file.id, name: newName })
+      .then(refetch)
+      .catch(() => {
+        file.name = originalName;
+      });
   };
 
   const onChecked = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,32 +54,51 @@ const FileListEntry = ({
     checkClassName += " sm:hidden";
   }
 
+  // gets length of file name without extension
+  const nameLength = file.name.lastIndexOf(".");
+
   return (
     <div
       key={file.id}
       className="flex flex-row justify-between align-middle gap-1 p-1 text-left hover:bg-slate-100 group"
     >
-      <span className="flex flex-row gap-1 place-self-center">
-        <span>
-          <a href={`http://192.168.0.236/api/file/download/${file.id}`}>
-            {file.name}
-          </a>
+      <InlineInput
+        initialValue={file.name}
+        onConfirm={renameFile}
+        editing={renaming}
+        setEditing={setRenaming}
+        placeholder="Enter new name"
+        selection={[0, nameLength]}
+        inputProps={{ className: "w-full outline-none" }}
+      >
+        <span className="flex flex-row gap-1 place-self-center">
+          <span>
+            <a href={`http://192.168.0.236/api/file/download/${file.id}`}>
+              {file.name}
+            </a>
+          </span>
         </span>
-      </span>
-      <span className="flex gap-1 align-middle">
-        <span
-          className="place-self-center sm:hidden text-red-500 group-hover:flex hover:cursor-pointer"
-          onClick={deleteFile}
-        >
-          <FontAwesomeIcon icon={faTrash} fixedWidth />
+        <span className="flex gap-1 align-middle">
+          <span
+            className="place-self-center sm:hidden text-blue-500 group-hover:flex hover:cursor-pointer"
+            onClick={() => setRenaming(true)}
+          >
+            <FontAwesomeIcon icon={faPenSquare} fixedWidth />
+          </span>
+          <span
+            className="place-self-center sm:hidden text-red-500 group-hover:flex hover:cursor-pointer"
+            onClick={deleteFile}
+          >
+            <FontAwesomeIcon icon={faTrash} fixedWidth />
+          </span>
+          <input
+            type="checkbox"
+            checked={checked}
+            className={checkClassName}
+            onChange={onChecked}
+          />
         </span>
-        <input
-          type="checkbox"
-          checked={checked}
-          className={checkClassName}
-          onChange={onChecked}
-        />
-      </span>
+      </InlineInput>
     </div>
   );
 };

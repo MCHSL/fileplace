@@ -23,8 +23,10 @@ interface DirectoryState {
   currentDirectory: Directory | null;
   directoryLoading: boolean;
   directoryError: any;
+  filter: string | null;
   setCurrentDirectoryId: (directory: number | null) => void;
   directoryRefetch: () => void;
+  setFilter: (filter: string | null) => void;
 }
 
 const DirectoryContext = React.createContext<DirectoryState>(
@@ -40,6 +42,7 @@ export const DirectoryProvider = ({
     number | null
   >();
   const [previousData, setPreviousData] = React.useState();
+  const [filter, setFilter] = React.useState<string | null>(null);
 
   const [{ data, error, loading }, refetch] = useAxios("/directory/", {
     manual: true,
@@ -58,16 +61,28 @@ export const DirectoryProvider = ({
     reloadDirectory();
   }, [currentDirectoryId]);
 
-  const finalData = data || previousData;
+  let dataAfterCache = data || previousData;
+  if (filter) {
+    console.log("filter", filter);
+    dataAfterCache = {
+      ...dataAfterCache,
+      files: dataAfterCache?.files.filter((file) => file.name.includes(filter)),
+      children: dataAfterCache?.children.filter((child) =>
+        child.name.includes(filter)
+      ),
+    };
+  }
 
   return (
     <DirectoryContext.Provider
       value={{
-        currentDirectory: finalData,
+        currentDirectory: dataAfterCache,
         setCurrentDirectoryId,
         directoryLoading: loading,
         directoryError: error,
         directoryRefetch: reloadDirectory,
+        filter,
+        setFilter,
       }}
     >
       {children}

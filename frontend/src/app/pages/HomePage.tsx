@@ -8,7 +8,6 @@ const HomePage = () => {
   const navigate = useNavigate();
   const { user, userError, userLoading, logout } = useUser();
   const { currentDirectory, setCurrentDirectoryId } = useDirectory();
-  const [search, setSearch] = useState<string | null>(null);
 
   useEffect(() => {
     if (user && !currentDirectory) {
@@ -35,9 +34,6 @@ const HomePage = () => {
           Logout
         </span>
         )
-      </div>
-      <div>
-        <input type="text" placeholder="Search..." />
       </div>
       <div className="flex flex-col gap-1">
         <DirectoryListing />

@@ -1,8 +1,5 @@
 import React from "react";
-import useDirectory, {
-  BasicDirectory,
-  UserFile,
-} from "../../context/DirectoryContext";
+import useDirectory from "../../context/DirectoryContext";
 import useUser from "../../context/UserContext";
 import DirectoryList from "./DirectoryStuff/DirectoryList";
 import DirectoryPath from "./DirectoryStuff/DirectoryPath";
@@ -11,8 +8,13 @@ import FileUpload from "./FileUpload/FileUpload";
 
 const DirectoryListing = () => {
   const { userError } = useUser();
-  const { currentDirectory, directoryLoading, directoryRefetch } =
-    useDirectory();
+  const {
+    currentDirectory,
+    directoryLoading,
+    directoryRefetch,
+    filter,
+    setFilter,
+  } = useDirectory();
 
   if (!currentDirectory) {
     return null;
@@ -30,6 +32,13 @@ const DirectoryListing = () => {
 
   return (
     <div className="flex flex-col gap-4 justify-center">
+      <input
+        type="text"
+        placeholder="Search..."
+        value={filter || ""}
+        onChange={(e) => setFilter(e.target.value)}
+        className="border border-gray-300 rounded-md p-2 w-3/4 place-self-center mt-5"
+      />
       <DirectoryPath />
       <DirectoryList />
       <FileList

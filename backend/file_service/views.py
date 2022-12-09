@@ -157,6 +157,20 @@ def move_files(request: HttpRequest) -> HttpResponse:
         return HttpResponse(errors, status=400)
 
 
+@login_required
+@require_POST
+def rename_file(request: HttpRequest) -> HttpResponse:
+    req = json.loads(request.body)
+    file_id = req["file"]
+    new_name = req["name"]
+    file = File.objects.get(pk=file_id)
+    if file.user != request.user:
+        return HttpResponse("Unauthorized", status=401)
+    file.name = new_name
+    file.save()
+    return HttpResponse("File renamed successfully")
+
+
 @require_POST
 def delete_directory(request: HttpRequest) -> HttpResponse:
     directory: Directory = Directory.objects.get(
@@ -205,6 +219,20 @@ def move_directory(request: HttpRequest) -> HttpResponse:
     directory.parent = parent
     directory.save()
     return JsonResponse(DirectorySerializer(directory).data)
+
+
+@login_required
+@require_POST
+def rename_directory(request: HttpRequest) -> HttpResponse:
+    data = json.loads(request.body)
+    directory_id = data["directory"]
+    new_name = data["name"]
+    directory: Directory = Directory.objects.get(pk=directory_id)
+    if directory.user != request.user:
+        return HttpResponse("Unauthorized", status=401)
+    directory.name = new_name
+    directory.save()
+    return HttpResponse("Directory renamed successfully")
 
 
 @login_required

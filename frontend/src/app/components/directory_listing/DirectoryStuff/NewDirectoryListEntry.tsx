@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
 import client from "../../../client";
 import useDirectory from "../../../context/DirectoryContext";
+import InlineInput from "../../misc/InlineInput";
 
 const NewDirectoryListEntry = () => {
   const { currentDirectory, directoryRefetch } = useDirectory();
   const [adding, setAdding] = React.useState(false);
-  const [name, setName] = React.useState("");
-  const nameInputRef = React.useRef<HTMLInputElement>(null);
 
   const createDirectory = (name: string) => {
     if (!currentDirectory || !name) {
@@ -18,59 +17,31 @@ const NewDirectoryListEntry = () => {
         parent: currentDirectory.id,
       })
       .then(directoryRefetch)
-      .then(stopAdding);
-  };
-
-  const startAdding = () => {
-    setAdding(true);
-    setName("");
-  };
-
-  const stopAdding = () => {
-    setAdding(false);
-    setName("");
-  };
-
-  useEffect(() => {
-    if (adding) {
-      const input = nameInputRef.current;
-      if (input) {
-        input.focus();
-      }
-    }
-  }, [adding]);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      createDirectory(name);
-    } else if (e.key === "Escape") {
-      stopAdding();
-    }
+      .then(() => {
+        setAdding(false);
+      });
   };
 
   return (
     <div
       className="p-1 text-left hover:bg-slate-100 hover:cursor-pointer"
       onClick={() => {
-        startAdding();
+        setAdding(true);
       }}
     >
-      {adding ? (
-        <input
-          type="text"
-          ref={nameInputRef}
-          value={name}
-          placeholder={
-            "Type in name, enter to confirm, esc or click away to cancel"
-          }
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onBlur={stopAdding}
-          className="w-full focus:outline-none"
-        />
-      ) : (
+      <InlineInput
+        onConfirm={createDirectory}
+        onCancel={() => setAdding(false)}
+        editing={adding}
+        setEditing={setAdding}
+        initialValue=""
+        placeholder="Input new name, enter to confirm, esc or click away to cancel"
+        inputProps={{
+          className: "w-full outline-none",
+        }}
+      >
         <span className="font-bold cursor:pointer">New directory...</span>
-      )}
+      </InlineInput>
     </div>
   );
 };
