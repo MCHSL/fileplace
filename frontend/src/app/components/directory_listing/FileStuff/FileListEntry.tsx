@@ -72,11 +72,15 @@ const FileListEntry = ({
         inputProps={{ className: "w-full outline-none" }}
       >
         <span className="flex flex-row gap-1 place-self-center">
-          <span>
-            <a href={`http://192.168.0.236/api/file/download/${file.id}`}>
-              {file.name}
-            </a>
-          </span>
+          <a
+            draggable
+            href={`http://192.168.0.236/api/file/download/${file.id}`}
+            onDragStart={(e) => {
+              e.dataTransfer.setData("files", JSON.stringify([file.id]));
+            }}
+          >
+            {file.name}
+          </a>
         </span>
         <span className="flex gap-1 align-middle">
           <span

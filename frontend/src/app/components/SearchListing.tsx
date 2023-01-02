@@ -4,8 +4,9 @@ import FileList from "./directory_listing/FileStuff/FileList";
 import { useDebounce } from "use-debounce";
 
 const SearchListing = () => {
-  const { searchLoading, searchResults, doSearch } = useSearch();
-  const [searchTerm, setSearchTerm] = React.useState<string>("");
+  const { query, searchLoading, searchResults, doSearch, clearSearch } =
+    useSearch();
+  const [searchTerm, setSearchTerm] = React.useState<string>(query || "");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 
   useEffect(() => {
@@ -25,13 +26,15 @@ const SearchListing = () => {
   return (
     <div>
       <div>
-        <input
-          type="text"
-          value={searchTerm}
-          placeholder="Search..."
-          onChange={onSearchChange}
-          className="border border-gray-300 rounded-md p-2 w-3/4"
-        />
+        <span>
+          <input
+            type="text"
+            value={searchTerm}
+            placeholder="Search..."
+            onChange={onSearchChange}
+            className="border border-gray-300 rounded-md p-2 w-3/4"
+          />
+        </span>
       </div>
       <div className="flex flex-col gap-4 justify-center">
         <FileList

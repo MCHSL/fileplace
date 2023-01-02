@@ -14,6 +14,7 @@ interface DirectoryListEntryProps {
 const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
   const { setCurrentDirectoryId, directoryRefetch } = useDirectory();
   const [renaming, setRenaming] = React.useState(false);
+  const [dragging, setDragging] = React.useState(false);
 
   const deleteDirectory = () => {
     const ok = window.confirm(
@@ -38,8 +39,28 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
       });
   };
 
+  const moveFiles = (files: number[]) => {
+    setDragging(false);
+    client
+      .post("/file/move", { files, directory: directory.id })
+      .then(directoryRefetch);
+  };
+
+  const moveDirectory = (moved_directory: number) => {
+    setDragging(false);
+    client
+      .post("/directory/move", {
+        directory: moved_directory,
+        parent: directory.id,
+      })
+      .then(directoryRefetch);
+  };
+
   return (
-    <div className="flex flex-row justify-between gap-1 p-1 hover:bg-slate-100 group">
+    <div
+      className="flex flex-row justify-between gap-1 p-1 hover:bg-slate-100 group data-[dragging=true]:bg-slate-100"
+      data-dragging={dragging}
+    >
       <InlineInput
         editing={renaming}
         setEditing={setRenaming}
@@ -50,10 +71,31 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
       >
         <span
           key={directory.id}
-          className="text-left hover:bg-slate-100 hover:cursor-pointer w-full"
+          className="text-left hover:bg-slate-100 hover:cursor-pointer w-full group-data-[dragging=true]:bg-slate-100"
+          data-dragging={dragging}
+          draggable
           onClick={() => setCurrentDirectoryId(directory.id)}
+          onDragStart={(e) => {
+            e.dataTransfer.setData(
+              "moved_directory",
+              JSON.stringify(directory.id)
+            );
+          }}
+          onDragEnter={() => setDragging(true)}
+          onDragLeave={() => setDragging(false)}
+          onDropCapture={(e) => {
+            e.preventDefault();
+            const files = e.dataTransfer.getData("files");
+            if (files) {
+              moveFiles(JSON.parse(files));
+            }
+            const moved_directory = e.dataTransfer.getData("moved_directory");
+            if (moved_directory) {
+              moveDirectory(JSON.parse(moved_directory));
+            }
+          }}
         >
-          <span>{directory.name}</span>
+          {directory.name}
         </span>
         <span className="flex flex-row">
           <span

@@ -187,7 +187,7 @@ def delete_directory(request: HttpRequest) -> HttpResponse:
 
 
 @require_safe
-def get_directory(request: HttpRequest, directory_id) -> JsonResponse:
+def get_directory(request: HttpRequest, directory_id: int) -> JsonResponse:
     directory: Directory = Directory.objects.get(pk=directory_id)
     return JsonResponse(DirectorySerializer(directory).data)
 

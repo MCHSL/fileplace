@@ -8,16 +8,19 @@ export interface SearchResults {
 }
 
 interface SearchState {
+  query: string | null;
   searchLoading: boolean;
   searchError: any;
   searchResults: SearchResults;
   doSearch: (query: string) => void;
+  clearSearch: () => void;
 }
 
 const SearchContext = React.createContext<SearchState>({} as SearchState);
 
 export const SearchProvider = ({ children }: { children: React.ReactNode }) => {
-  const [{ data, error, loading }, refetch] = useAxios("/search/", {
+  const [query, setQuery] = React.useState<string | null>(null);
+  const [{ data, error, loading }, refetch] = useAxios("/search", {
     manual: true,
   });
 
@@ -30,10 +33,15 @@ export const SearchProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const searchRefetch = (query: string) => {
+    setQuery(query);
     setPreviousData(data);
     refetch({
       url: `/search?query=${query}`,
     });
+  };
+
+  const clearSearch = () => {
+    setPreviousData(emptyData);
   };
 
   const finalData = data || previousData || emptyData;
@@ -41,10 +49,12 @@ export const SearchProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <SearchContext.Provider
       value={{
+        query,
         searchLoading: loading,
         searchError: error,
         searchResults: finalData,
         doSearch: searchRefetch,
+        clearSearch,
       }}
     >
       {children}

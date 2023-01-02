@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import useDirectory from "../../context/DirectoryContext";
 import useUser from "../../context/UserContext";
 import DirectoryList from "./DirectoryStuff/DirectoryList";
@@ -15,6 +16,7 @@ const DirectoryListing = () => {
     filter,
     setFilter,
   } = useDirectory();
+  const navigate = useNavigate();
 
   if (!currentDirectory) {
     return null;
@@ -32,13 +34,23 @@ const DirectoryListing = () => {
 
   return (
     <div className="flex flex-col gap-4 justify-center">
-      <input
-        type="text"
-        placeholder="Search..."
-        value={filter || ""}
-        onChange={(e) => setFilter(e.target.value)}
-        className="border border-gray-300 rounded-md p-2 w-3/4 place-self-center mt-5"
-      />
+      <span>
+        <input
+          type="text"
+          placeholder="Search..."
+          value={filter || ""}
+          onChange={(e) => setFilter(e.target.value)}
+          className="border border-gray-300 rounded-md p-2 w-3/4 place-self-center mt-5"
+        />
+        <button
+          onClick={() => navigate("/search")}
+          className="
+		  bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-1
+		"
+        >
+          Full search...
+        </button>
+      </span>
       <DirectoryPath />
       <DirectoryList />
       <FileList

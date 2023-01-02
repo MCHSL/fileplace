@@ -7,9 +7,6 @@ import ParentDirectoryListEntry from "./ParentDirectoryListEntry";
 const DirectoryList = () => {
   const { currentDirectory, directoryLoading } = useDirectory();
 
-  console.log(currentDirectory);
-  console.log(directoryLoading);
-
   if (directoryLoading && !currentDirectory) {
     return (
       <div className="flex flex-col gap-1">
