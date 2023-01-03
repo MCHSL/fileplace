@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DirectoryListing from "../components/directory_listing/DirectoryListing";
+import LoggedInAs from "../components/misc/LoggedInAs";
 import useDirectory from "../context/DirectoryContext";
 import useUser from "../context/UserContext";
 
@@ -26,14 +27,7 @@ const HomePage = () => {
   return (
     <div>
       <div className="text-right w-full">
-        Logged in as {user?.username} (
-        <span
-          className="underline text-blue-400 hover:cursor-pointer"
-          onClick={logout}
-        >
-          Logout
-        </span>
-        )
+        <LoggedInAs />
       </div>
       <div className="flex flex-col gap-1">
         <DirectoryListing />

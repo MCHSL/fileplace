@@ -63,7 +63,6 @@ export const DirectoryProvider = ({
 
   let dataAfterCache = data || previousData;
   if (filter) {
-    console.log("filter", filter);
     dataAfterCache = {
       ...dataAfterCache,
       files: dataAfterCache?.files.filter((file) => file.name.includes(filter)),

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Field, Form } from "react-final-form";
 import { useNavigate } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
-import client from "../client";
-import useUser from "../context/UserContext";
+import client from "../../client";
+import useUser from "../../context/UserContext";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -56,6 +56,15 @@ const LoginForm = () => {
             className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
           >
             <h2 className="font-bold mb-2 text-lg">Login</h2>
+            {error && (
+              <div
+                className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+                role="alert"
+              >
+                <span className="block sm:inline">{error}</span>
+                <span className="absolute top-0 bottom-0 right-0 px-4 py-3"></span>
+              </div>
+            )}
             <div className="mb-4">
               <label
                 className="block text-gray-700 text-sm font-bold mb-2"
@@ -94,7 +103,7 @@ const LoginForm = () => {
                   <div className="flex flex-col">
                     <input
                       {...input}
-                      type="text"
+                      type="password"
                       placeholder="Password"
                       className={`shadow transition-colors duration-300 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
                         meta.error && meta.touched
@@ -120,7 +129,6 @@ const LoginForm = () => {
             >
               {loading ? <ScaleLoader color="#000000" loading /> : "Submit"}
             </button>
-            <div className="text-red-500">{error}</div>
           </form>
         )}
       />

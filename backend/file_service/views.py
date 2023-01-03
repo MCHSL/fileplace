@@ -94,6 +94,64 @@ def do_logout(request: HttpRequest) -> HttpResponse:
     return HttpResponse("OK")
 
 
+@csrf_exempt
+@require_POST
+def register(request: HttpRequest) -> HttpResponse:
+    data = json.loads(request.body)
+    username: str = data["username"]
+    password: str = data["password"]
+    email: str = data["email"]
+    if User.objects.filter(username=username).exists():
+        return HttpResponse("Username already exists", status=400)
+    if User.objects.filter(email=email).exists():
+        return HttpResponse("Email already exists", status=400)
+    if not username or not password or not email:
+        return HttpResponse("Username, password or email cannot be empty", status=400)
+
+    if not username.isalnum():
+        return HttpResponse("Username must be alphanumeric", status=400)
+
+    if len(password) < 10:
+        return HttpResponse("Password must be at least 10 characters long", status=400)
+
+    if not any(char.isdigit() for char in password):
+        return HttpResponse("Password must contain at least one digit", status=400)
+
+    if not any(char.isupper() for char in password):
+        return HttpResponse(
+            "Password must contain at least one uppercase letter", status=400
+        )
+
+    if not any(char.islower() for char in password):
+        return HttpResponse(
+            "Password must contain at least one lowercase letter", status=400
+        )
+
+    if not any(not char.isalnum() for char in password):
+        return HttpResponse(
+            "Password must contain at least one special character", status=400
+        )
+
+    user = User(username=username, email=email)
+    user.set_password(password)
+    user.save()
+    return HttpResponse("OK")
+
+
+@require_safe
+def check_username(request: HttpRequest, username: str) -> JsonResponse:
+    return JsonResponse({"exists": User.objects.filter(username=username).exists()})
+
+
+@require_safe
+def get_user(request: HttpRequest, username: str) -> JsonResponse:
+    user = User.objects.get(username=username)
+    serialized = UserSerializer(user).data
+    if not request.user.is_staff:  # type: ignore
+        serialized["email"] = "<redacted>"
+    return JsonResponse(serialized)
+
+
 @login_required
 @require_POST
 def upload(request: HttpRequest) -> HttpResponse:
@@ -171,6 +229,19 @@ def rename_file(request: HttpRequest) -> HttpResponse:
     return HttpResponse("File renamed successfully")
 
 
+@login_required
+@require_POST
+def set_file_private(request: HttpRequest) -> HttpResponse:
+    req = json.loads(request.body)
+    file_id = req["file"]
+    private = req["private"]
+    file = File.objects.get(pk=file_id)
+    if file.user != request.user:
+        return HttpResponse("Unauthorized", status=401)
+    file.set_private(private)
+    return HttpResponse("File set to private successfully")
+
+
 @require_POST
 def delete_directory(request: HttpRequest) -> HttpResponse:
     directory: Directory = Directory.objects.get(
@@ -233,6 +304,19 @@ def rename_directory(request: HttpRequest) -> HttpResponse:
     directory.name = new_name
     directory.save()
     return HttpResponse("Directory renamed successfully")
+
+
+@login_required
+@require_POST
+def set_directory_private(request: HttpRequest) -> HttpResponse:
+    data = json.loads(request.body)
+    directory_id = data["directory"]
+    private = data["private"]
+    directory: Directory = Directory.objects.get(pk=directory_id)
+    if directory.user != request.user:
+        return HttpResponse("Unauthorized", status=401)
+    directory.set_private(private)
+    return HttpResponse("Directory set to private successfully")
 
 
 @login_required

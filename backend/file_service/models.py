@@ -33,9 +33,22 @@ class Directory(MPTTModel):
     parent = TreeForeignKey(
         "self", on_delete=models.CASCADE, null=True, blank=True, related_name="children"
     )
+    private = models.BooleanField(default=True)
 
     def get_path(self):
         return self.get_ancestors(include_self=True)
+
+    def set_private(self, private):
+        self.private = private
+        if private:
+            for child in self.get_descendants():
+                child.private = True
+                child.save()
+
+            for file in self.files.all():  # type: ignore
+                file.private = True
+                file.save()
+        self.save()
 
 
 class File(models.Model):
@@ -45,8 +58,16 @@ class File(models.Model):
     )
     name = models.TextField()
     size = models.BigIntegerField()
+    private = models.BooleanField(default=True)
 
     file_ref = models.FileField(upload_to=upload_location)
+
+    def set_private(self, private):
+        self.private = private
+        if not self.private:
+            for ancestor in self.directory.get_ancestors(include_self=True):  # type: ignore
+                ancestor.private = False
+                ancestor.save()
 
     def save(self, *args, **kwargs):
         if not self.pk:
