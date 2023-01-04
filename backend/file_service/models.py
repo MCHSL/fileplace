@@ -40,10 +40,6 @@ class Directory(MPTTModel):
 
     def set_private(self, private):
         self.private = private
-        if private:
-            for file in self.files.all():  # type: ignore
-                file.private = True
-                file.save()
         self.save()
 
 
@@ -60,8 +56,6 @@ class File(models.Model):
 
     def set_private(self, private):
         self.private = private
-        if not self.private:
-            self.directory.set_private(False)  # type: ignore
         self.save()
 
     def save(self, *args, **kwargs):

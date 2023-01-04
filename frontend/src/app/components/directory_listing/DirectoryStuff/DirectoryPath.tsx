@@ -30,11 +30,6 @@ const DirectoryPath = () => {
     </span>
   ));
 
-  console.log(user?.id, currentDirectory?.user.id);
-  console.log(user?.id != currentDirectory?.user.id);
-  console.log(user?.id == currentDirectory?.user.id);
-  console.log(currentDirectory?.private);
-
   const padlock =
     user?.id != currentDirectory?.user.id ? (
       <></>

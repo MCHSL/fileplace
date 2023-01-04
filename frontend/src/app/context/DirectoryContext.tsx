@@ -92,6 +92,7 @@ export const DirectoryProvider = ({
   };
 
   const directoryClear = () => {
+    directoryCancel();
     setCurrentDirectoryId(null);
     setData(null);
     setPreviousData(null);

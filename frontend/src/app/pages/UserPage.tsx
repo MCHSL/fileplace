@@ -15,11 +15,13 @@ interface UserInfo {
 const UserPage = () => {
   const params = useParams();
   const username = useMemo(() => params.username as string, []);
+  const navigate = useNavigate();
 
   const [userInfo, setUserInfo] = useState<UserInfo | null>();
   const [userError, setUserError] = useState(null);
 
-  const { setCurrentDirectoryId, directoryCancel } = useDirectory();
+  const { currentDirectory, setCurrentDirectoryId, directoryCancel } =
+    useDirectory();
 
   useEffect(() => {
     client
@@ -42,6 +44,17 @@ const UserPage = () => {
       setCurrentDirectoryId(userInfo.root_directory);
     }
   }, [userInfo]);
+
+  useEffect(() => {
+    navigate(
+      `/user/${username}/${
+        currentDirectory?.path
+          .map((d) => d.name)
+          .slice(1)
+          .join("/") || ""
+      }`
+    );
+  }, [username, currentDirectory]);
 
   return (
     <div>

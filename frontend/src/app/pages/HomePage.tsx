@@ -20,6 +20,20 @@ const HomePage = () => {
     }
   }, [user, userError]);
 
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    navigate(
+      `/home/${
+        currentDirectory?.path
+          .map((d) => d.name)
+          .slice(1)
+          .join("/") || ""
+      }`
+    );
+  }, [currentDirectory, user]);
+
   if (userLoading || !user) {
     return null;
   }

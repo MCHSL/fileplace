@@ -5,7 +5,8 @@ import {
   faUnlockAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import React, { useEffect } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import client from "../../../client";
 import useDirectory, {
   BasicDirectory,
@@ -22,6 +23,7 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
   const { setCurrentDirectoryId, directoryRefetch } = useDirectory();
   const [renaming, setRenaming] = React.useState(false);
   const [dragging, setDragging] = React.useState(false);
+  const navigate = useNavigate();
 
   const deleteDirectory = () => {
     const ok = window.confirm(
@@ -72,6 +74,10 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
       .then(directoryRefetch);
   };
 
+  const doGoToDirectory = () => {
+    setCurrentDirectoryId(directory.id);
+  };
+
   return (
     <div
       key={directory.id}
@@ -97,7 +103,7 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
           className="flex flex-row gap-1 place-self-center text-left grow hover:bg-slate-100 hover:cursor-pointer group-data-[dragging=true]:bg-slate-100"
           data-dragging={dragging}
           draggable={user?.id == directory.user.id}
-          onClick={() => setCurrentDirectoryId(directory.id)}
+          onClick={doGoToDirectory}
           onDragStart={(e) => {
             e.dataTransfer.setData(
               "moved_directory",

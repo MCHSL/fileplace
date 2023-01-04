@@ -5,10 +5,13 @@ import useUser from "../../context/UserContext";
 
 const LoggedInAs = () => {
   const { user, logout } = useUser();
+  const { directoryClear } = useDirectory();
   const navigate = useNavigate();
 
   const doLogout = () => {
-    logout().then(() => navigate("/login"));
+    logout()
+      .then(directoryClear)
+      .then(() => navigate("/login"));
   };
 
   if (!user) {

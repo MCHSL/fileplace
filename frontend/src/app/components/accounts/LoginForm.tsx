@@ -14,7 +14,7 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (user) {
-      navigate(location.state?.next || "/");
+      navigate(location.state?.next || "/home");
       return;
     }
   }, [user]);
@@ -25,7 +25,7 @@ const LoginForm = () => {
     client
       .post("/user/login", values)
       .then(() => {
-        refetchUser().then(() => navigate(location.state?.next || "/"));
+        refetchUser().then(() => navigate(location.state?.next || "/home"));
       })
       .catch((e) => {
         if (!e.response) {

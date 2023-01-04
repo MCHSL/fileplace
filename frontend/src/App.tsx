@@ -17,7 +17,7 @@ configure({
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/home/*",
     element: <HomePage />,
   },
   {
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
     element: <SearchListing />,
   },
   {
-    path: "/user/:username",
+    path: "/user/:username/*",
     element: <UserPage />,
   },
 ]);
