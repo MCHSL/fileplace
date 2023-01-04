@@ -3,15 +3,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useCallback } from "react";
 import client from "../../../client";
 import { Directory, UserFile } from "../../../context/DirectoryContext";
+import { User } from "../../../context/UserContext";
 import FileListEntry from "./FileListEntry";
 
 interface FileListProps {
   directoryLoading: boolean;
   files: UserFile[] | null;
   directoryRefetch: () => void;
+  owned: boolean;
 }
 
 const FileList = ({
+  owned,
   files,
   directoryLoading,
   directoryRefetch,
@@ -83,18 +86,19 @@ const FileList = ({
         <span className="underline">Files</span>
         <span className="flex flex-row gap-4 mr-1">
           <span
-            className="place-self-center hidden group-hover:block text-red-500 hover:cursor-pointer"
-            style={{ display: checkedFiles.size ? "flex" : "none" }}
+            data-show={checkedFiles.size > 0}
+            className="flex place-self-center group-hover:block text-red-500 hover:cursor-pointer data-[show=false]:hidden"
             onClick={deleteCheckedFiles}
           >
             <FontAwesomeIcon icon={faTrash} fixedWidth />
           </span>
           <input
+            data-owned={owned}
+            data-show={files?.length}
             type="checkbox"
             checked={checkAll}
-            className="self-center w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            className="self-center w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 data-[owned=false]:hidden data-[show=false]:hidden"
             onChange={handleCheckAll}
-            style={{ display: files?.length ? "flex" : "none" }}
           />
         </span>
       </div>

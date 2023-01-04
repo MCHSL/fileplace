@@ -1,5 +1,5 @@
 import useAxios from "axios-hooks";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { BasicDirectory, UserFile } from "./DirectoryContext";
 
 export interface SearchResults {
@@ -32,19 +32,22 @@ export const SearchProvider = ({ children }: { children: React.ReactNode }) => {
     emptyData as SearchResults
   );
 
-  const searchRefetch = (query: string) => {
+  const searchRefetch = useCallback((query: string) => {
     setQuery(query);
     setPreviousData(data);
     refetch({
       url: `/search?query=${query}`,
     });
-  };
+  }, []);
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     setPreviousData(emptyData);
-  };
+  }, []);
 
-  const finalData = data || previousData || emptyData;
+  const finalData = useMemo(
+    () => data || previousData || emptyData,
+    [data, previousData, emptyData]
+  );
 
   return (
     <SearchContext.Provider

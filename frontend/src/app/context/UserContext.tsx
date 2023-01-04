@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import client from "../client";
 
 export type User = {
@@ -12,7 +12,7 @@ export interface UserContext {
   userError: boolean;
   user: User | null;
   refetchUser: () => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const UserContext = React.createContext<UserContext>({} as UserContext);
@@ -22,7 +22,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [userError, setUserError] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
-  const refetchUser = async () => {
+  const refetchUser = useCallback(async () => {
     setUserLoading(true);
     setUserError(false);
     try {
@@ -35,11 +35,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setUserLoading(false);
     }
-  };
+  }, []);
 
-  const logout = () => {
-    client.post("/user/logout").then(refetchUser);
-  };
+  const logout = useCallback(async () => {
+    return client.post("/user/logout").then(refetchUser);
+  }, []);
 
   useEffect(() => {
     refetchUser();

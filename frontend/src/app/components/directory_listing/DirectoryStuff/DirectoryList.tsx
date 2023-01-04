@@ -1,11 +1,13 @@
 import React from "react";
 import useDirectory from "../../../context/DirectoryContext";
+import useUser from "../../../context/UserContext";
 import DirectoryListEntry from "./DirectoryListEntry";
 import NewDirectoryListEntry from "./NewDirectoryListEntry";
 import ParentDirectoryListEntry from "./ParentDirectoryListEntry";
 
 const DirectoryList = () => {
   const { currentDirectory, directoryLoading } = useDirectory();
+  const { user } = useUser();
 
   if (directoryLoading && !currentDirectory) {
     return (
@@ -38,10 +40,14 @@ const DirectoryList = () => {
             id={parentDirectory.id}
           />
         ) : null}
-        {directories.map((dir) => (
-          <DirectoryListEntry key={dir.id} directory={dir} />
-        ))}
-        <NewDirectoryListEntry />
+        {directories.length ? (
+          directories.map((dir) => (
+            <DirectoryListEntry key={dir.id} directory={dir} />
+          ))
+        ) : (
+          <span className="italic text-slate-500">No directories</span>
+        )}
+        {user?.id == currentDirectory.user.id && <NewDirectoryListEntry />}
       </div>
     </div>
   );

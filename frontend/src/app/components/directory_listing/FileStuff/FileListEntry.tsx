@@ -1,8 +1,15 @@
-import { faTrash, faPenSquare } from "@fortawesome/free-solid-svg-icons";
+import {
+  faTrash,
+  faPenSquare,
+  faLock,
+  faUnlockAlt,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import React, { useEffect } from "react";
 import client from "../../../client";
-import { UserFile } from "../../../context/DirectoryContext";
+import useDirectory, { UserFile } from "../../../context/DirectoryContext";
+import useUser from "../../../context/UserContext";
+import UserPage from "../../../pages/UserPage";
 import InlineInput from "../../misc/InlineInput";
 
 interface FileListEntryProps {
@@ -18,7 +25,9 @@ const FileListEntry = ({
   setChecked,
   refetch,
 }: FileListEntryProps) => {
+  const { user } = useUser();
   const [renaming, setRenaming] = React.useState(false);
+  const { renameFile } = useDirectory();
 
   const deleteFile = async () => {
     const ok = window.confirm(
@@ -30,22 +39,21 @@ const FileListEntry = ({
     client.post("/file/delete", { files: [file.id] }).then(refetch);
   };
 
-  const renameFile = async (newName) => {
+  const rename = async (newName) => {
     if (!newName) {
       return;
     }
-    let originalName = file.name;
-    file.name = newName;
-    client
-      .post("/file/rename", { file: file.id, name: newName })
-      .then(refetch)
-      .catch(() => {
-        file.name = originalName;
-      });
+    renameFile(file.id, newName);
   };
 
   const onChecked = (e: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(file.id, e.target.checked);
+  };
+
+  const doSetPrivate = async () => {
+    client
+      .post("/file/set_private", { file: file.id, private: !file.private })
+      .then(refetch);
   };
 
   let checkClassName =
@@ -62,16 +70,23 @@ const FileListEntry = ({
       key={file.id}
       className="flex flex-row justify-between align-middle gap-1 p-1 text-left hover:bg-slate-100 group"
     >
+      <span className="place-self-center text-green-500 basis-5">
+        {file.private || user?.id != file.user.id ? (
+          <></>
+        ) : (
+          <FontAwesomeIcon icon={faUnlockAlt} fixedWidth />
+        )}
+      </span>
       <InlineInput
         initialValue={file.name}
-        onConfirm={renameFile}
+        onConfirm={rename}
         editing={renaming}
         setEditing={setRenaming}
         placeholder="Enter new name"
         selection={[0, nameLength]}
-        inputProps={{ className: "w-full outline-none" }}
+        inputProps={{ className: "w-full outline-none grow" }}
       >
-        <span className="flex flex-row gap-1 place-self-center">
+        <span className="flex flex-row gap-1 place-self-center text-left grow">
           <a
             draggable
             href={`http://192.168.0.236/api/file/download/${file.id}`}
@@ -82,7 +97,10 @@ const FileListEntry = ({
             {file.name}
           </a>
         </span>
-        <span className="flex gap-1 align-middle">
+        <span
+          data-owned={user?.id == file.user.id}
+          className="flex gap-1 align-middle data-[owned=false]:hidden"
+        >
           <span
             className="place-self-center sm:hidden text-blue-500 group-hover:flex hover:cursor-pointer"
             onClick={() => setRenaming(true)}
@@ -94,6 +112,15 @@ const FileListEntry = ({
             onClick={deleteFile}
           >
             <FontAwesomeIcon icon={faTrash} fixedWidth />
+          </span>
+          <span
+            className="place-self-center sm:hidden text-blue-500 group-hover:flex hover:cursor-pointer"
+            onClick={doSetPrivate}
+          >
+            <FontAwesomeIcon
+              icon={file.private ? faUnlockAlt : faLock}
+              fixedWidth
+            />
           </span>
           <input
             type="checkbox"

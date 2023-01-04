@@ -42,12 +42,16 @@ const InlineInput = ({
         }
       }
     }
-  }, [editing]);
+  }, [editing, selection]);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       onConfirm(value);
-      stopEditing(false);
+      stopEditing(true);
     } else if (e.key === "Escape") {
       if (onCancel) onCancel();
       stopEditing(true);

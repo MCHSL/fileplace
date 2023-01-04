@@ -1,10 +1,16 @@
-import { faTrash, faPenSquare } from "@fortawesome/free-solid-svg-icons";
+import {
+  faTrash,
+  faPenSquare,
+  faLock,
+  faUnlockAlt,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import client from "../../../client";
 import useDirectory, {
   BasicDirectory,
 } from "../../../context/DirectoryContext";
+import useUser from "../../../context/UserContext";
 import InlineInput from "../../misc/InlineInput";
 
 interface DirectoryListEntryProps {
@@ -12,6 +18,7 @@ interface DirectoryListEntryProps {
 }
 
 const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
+  const { user } = useUser();
   const { setCurrentDirectoryId, directoryRefetch } = useDirectory();
   const [renaming, setRenaming] = React.useState(false);
   const [dragging, setDragging] = React.useState(false);
@@ -56,24 +63,40 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
       .then(directoryRefetch);
   };
 
+  const doSetPrivate = async () => {
+    client
+      .post("/directory/set_private", {
+        directory: directory.id,
+        private: !directory.private,
+      })
+      .then(directoryRefetch);
+  };
+
   return (
     <div
-      className="flex flex-row justify-between gap-1 p-1 hover:bg-slate-100 group data-[dragging=true]:bg-slate-100"
+      key={directory.id}
+      className="flex flex-row justify-between align-middle gap-1 p-1 text-left hover:bg-slate-100 group data-[dragging=true]:bg-slate-100"
       data-dragging={dragging}
     >
+      <span className="place-self-center text-green-500 basis-5">
+        {directory.private || user?.id != directory.user.id ? (
+          <></>
+        ) : (
+          <FontAwesomeIcon icon={faUnlockAlt} fixedWidth />
+        )}
+      </span>
       <InlineInput
         editing={renaming}
         setEditing={setRenaming}
         initialValue={directory.name}
         onConfirm={renameDirectory}
         placeholder="Input new directory name..."
-        inputProps={{ className: "w-full outline-none" }}
+        inputProps={{ className: "w-full outline-none grow" }}
       >
         <span
-          key={directory.id}
-          className="text-left hover:bg-slate-100 hover:cursor-pointer w-full group-data-[dragging=true]:bg-slate-100"
+          className="flex flex-row gap-1 place-self-center text-left grow hover:bg-slate-100 hover:cursor-pointer group-data-[dragging=true]:bg-slate-100"
           data-dragging={dragging}
-          draggable
+          draggable={user?.id == directory.user.id}
           onClick={() => setCurrentDirectoryId(directory.id)}
           onDragStart={(e) => {
             e.dataTransfer.setData(
@@ -97,7 +120,10 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
         >
           {directory.name}
         </span>
-        <span className="flex flex-row">
+        <span
+          data-owned={user?.id == directory.user.id}
+          className="flex gap-1 align-middle data-[owned=false]:hidden"
+        >
           <span
             className="place-self-center hidden group-hover:block text-blue-500 hover:cursor-pointer"
             onClick={() => setRenaming(true)}
@@ -109,6 +135,15 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
             onClick={deleteDirectory}
           >
             <FontAwesomeIcon icon={faTrash} fixedWidth />
+          </span>
+          <span
+            className="place-self-center sm:hidden text-blue-500 group-hover:flex hover:cursor-pointer"
+            onClick={doSetPrivate}
+          >
+            <FontAwesomeIcon
+              icon={directory.private ? faUnlockAlt : faLock}
+              fixedWidth
+            />
           </span>
         </span>
       </InlineInput>

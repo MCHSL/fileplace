@@ -41,10 +41,6 @@ class Directory(MPTTModel):
     def set_private(self, private):
         self.private = private
         if private:
-            for child in self.get_descendants():
-                child.private = True
-                child.save()
-
             for file in self.files.all():  # type: ignore
                 file.private = True
                 file.save()
@@ -65,9 +61,8 @@ class File(models.Model):
     def set_private(self, private):
         self.private = private
         if not self.private:
-            for ancestor in self.directory.get_ancestors(include_self=True):  # type: ignore
-                ancestor.private = False
-                ancestor.save()
+            self.directory.set_private(False)  # type: ignore
+        self.save()
 
     def save(self, *args, **kwargs):
         if not self.pk:

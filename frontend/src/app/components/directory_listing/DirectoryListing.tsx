@@ -8,7 +8,6 @@ import FileList from "./FileStuff/FileList";
 import FileUpload from "./FileUpload/FileUpload";
 
 const DirectoryListing = () => {
-  const { userError } = useUser();
   const {
     currentDirectory,
     directoryLoading,
@@ -17,12 +16,13 @@ const DirectoryListing = () => {
     setFilter,
   } = useDirectory();
   const navigate = useNavigate();
+  const { user } = useUser();
 
   if (!currentDirectory) {
     return null;
   }
 
-  if (userError) {
+  /*if (userError) {
     return (
       <div>
         <span className="text-red-500">
@@ -30,7 +30,7 @@ const DirectoryListing = () => {
         </span>
       </div>
     );
-  }
+  }*/
 
   return (
     <div className="flex flex-col gap-4 justify-center">
@@ -54,6 +54,7 @@ const DirectoryListing = () => {
       <DirectoryPath />
       <DirectoryList />
       <FileList
+        owned={currentDirectory.user.id == user?.id}
         files={currentDirectory.files}
         directoryLoading={directoryLoading}
         directoryRefetch={directoryRefetch}

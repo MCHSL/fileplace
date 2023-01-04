@@ -11,7 +11,7 @@ from .decorators import login_required
 
 # Create your views here.
 
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from rest_framework import serializers
 
 
@@ -29,11 +29,11 @@ class UserSerializer(serializers.ModelSerializer):
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
-        fields = ["id", "user", "name", "size", "directory", "path"]
+        fields = ["id", "user", "name", "size", "directory", "path", "private"]
 
-    user = serializers.PrimaryKeyRelatedField(read_only=True)
     directory = serializers.PrimaryKeyRelatedField(read_only=True)
     path = serializers.SerializerMethodField()
+    user = UserSerializer(read_only=True)
 
     def get_path(self, obj: File):
         directory: Directory = obj.directory  # type: ignore
@@ -45,25 +45,49 @@ class FileSerializer(serializers.ModelSerializer):
 class DirectoryBasicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Directory
-        fields = ["id", "name", "parent"]
+        fields = ["id", "name", "parent", "user", "private"]
 
     parent = serializers.PrimaryKeyRelatedField(read_only=True)
+    user = UserSerializer(read_only=True)
 
 
 class DirectorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Directory
-        fields = ["id", "user", "name", "parent", "children", "files", "path"]
+        fields = [
+            "id",
+            "user",
+            "name",
+            "parent",
+            "children",
+            "files",
+            "path",
+            "private",
+        ]
 
-    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    user = UserSerializer(read_only=True)
 
     parent = DirectoryBasicSerializer(read_only=True)
-    children = DirectoryBasicSerializer(read_only=True, many=True)
-    files = FileSerializer(read_only=True, many=True)
+    children = serializers.SerializerMethodField()
+    files = serializers.SerializerMethodField()
     path = serializers.SerializerMethodField()
 
     def get_path(self, obj: Directory):
         return DirectoryBasicSerializer(obj.get_path(), read_only=True, many=True).data
+
+    def get_children(self, obj: Directory):
+        if self.context.get("request").user == obj.user:  # type: ignore
+            children = obj.children.all()  # type: ignore
+        else:
+            children = obj.children.filter(private=False)  # type: ignore
+        return DirectoryBasicSerializer(children, read_only=True, many=True).data
+
+    def get_files(self, obj: Directory):
+        if self.context.get("request").user == obj.user:  # type: ignore
+            files = obj.files.all()  # type: ignore
+        else:
+            files = obj.files.filter(private=False)  # type: ignore
+        return FileSerializer(files, read_only=True, many=True).data
 
 
 @login_required
@@ -155,11 +179,13 @@ def get_user(request: HttpRequest, username: str) -> JsonResponse:
 @login_required
 @require_POST
 def upload(request: HttpRequest) -> HttpResponse:
+    directory_id = int(request.POST["directory"])
+    directory: Directory = Directory.objects.get(pk=directory_id)  # type: ignore
+    if directory.user != request.user:
+        raise Http404()
     file: UploadedFile = request.FILES["file"]
     file_name = file.name
     file_size = file.size
-    directory_id = int(request.POST["directory"])
-    directory: Directory = Directory.objects.get(pk=directory_id)
     file_instance = File(
         user=request.user, name=file_name, size=file_size, directory=directory
     )
@@ -171,6 +197,9 @@ def upload(request: HttpRequest) -> HttpResponse:
 @require_safe
 def download(request: HttpRequest, file_id) -> HttpResponse:
     file = File.objects.get(pk=file_id)
+    if file.private and file.user != request.user:
+        raise Http404()
+
     response = HttpResponse(file.file_ref)
     response["Content-Disposition"] = "attachment; filename=%s" % file.name
     return response
@@ -260,7 +289,15 @@ def delete_directory(request: HttpRequest) -> HttpResponse:
 @require_safe
 def get_directory(request: HttpRequest, directory_id: int) -> JsonResponse:
     directory: Directory = Directory.objects.get(pk=directory_id)
-    return JsonResponse(DirectorySerializer(directory).data)
+    if directory.private and directory.user != request.user:
+        raise Http404()
+
+    return JsonResponse(
+        DirectorySerializer(
+            directory,
+            context={"request": request},
+        ).data
+    )
 
 
 @login_required
@@ -274,7 +311,9 @@ def create_directory(request: HttpRequest) -> HttpResponse:
         return HttpResponse("Unauthorized", status=401)
     directory = Directory(user=request.user, name=name, parent=parent)
     directory.save()
-    return JsonResponse(DirectorySerializer(directory).data)
+    return JsonResponse(
+        DirectorySerializer(directory, context={"request": request}).data
+    )
 
 
 @login_required
@@ -289,7 +328,9 @@ def move_directory(request: HttpRequest) -> HttpResponse:
         return HttpResponse("Unauthorized", status=401)
     directory.parent = parent
     directory.save()
-    return JsonResponse(DirectorySerializer(directory).data)
+    return JsonResponse(
+        DirectorySerializer(directory, context={"request": request}).data
+    )
 
 
 @login_required

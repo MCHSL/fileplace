@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { Field, Form } from "react-final-form";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
 import client from "../../client";
 import useUser from "../../context/UserContext";
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, refetchUser } = useUser();
   const [error, setError] = useState<string | null>();
   const [loading, setLoading] = useState<boolean>();
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      navigate(location.state?.next || "/");
       return;
     }
   }, [user]);
@@ -24,14 +25,20 @@ const LoginForm = () => {
     client
       .post("/user/login", values)
       .then(() => {
-        refetchUser()
-          .then(() => navigate("/"))
-          .then(() => setLoading(false));
+        refetchUser().then(() => navigate(location.state?.next || "/"));
       })
-      .catch(() => {
-        setLoading(false);
-        setError("Invalid username or password.");
-      });
+      .catch((e) => {
+        if (!e.response) {
+          setError("Something went wrong. Please try again later.");
+        } else {
+          if (e.response.status === 401) {
+            setError("Invalid username or password.");
+          } else {
+            setError("Something went wrong. Please try again later.");
+          }
+        }
+      })
+      .finally(() => setLoading(false));
   };
 
   const onValidate = (values: any) => {
