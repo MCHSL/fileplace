@@ -3,6 +3,7 @@ import hashlib
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
+from django.core.cache import cache
 
 
 class User(AbstractUser):
@@ -37,6 +38,12 @@ class Directory(MPTTModel):
 
     def get_path(self):
         return self.get_ancestors(include_self=True)
+
+    def follow_path(self, path):
+        if not path:
+            return self
+        else:
+            return self.children.get(name=path[0]).follow_path(path[1:])  # type: ignore
 
     def set_private(self, private):
         self.private = private

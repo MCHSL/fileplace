@@ -6,7 +6,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import client from "../../../client";
 import useDirectory, {
   BasicDirectory,
@@ -24,6 +29,8 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
   const [renaming, setRenaming] = React.useState(false);
   const [dragging, setDragging] = React.useState(false);
   const navigate = useNavigate();
+  const { username } = useParams<{ username: string }>();
+  const location = useLocation();
 
   const deleteDirectory = () => {
     const ok = window.confirm(
@@ -75,13 +82,14 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
   };
 
   const doGoToDirectory = () => {
+    //navigate(location.pathname + "/" + directory.name);
     setCurrentDirectoryId(directory.id);
   };
 
   return (
     <div
       key={directory.id}
-      className="flex flex-row justify-between align-middle gap-1 p-1 text-left hover:bg-slate-100 group data-[dragging=true]:bg-slate-100"
+      className="flex flex-row justify-between align-middle gap-1 text-left hover:bg-slate-100 group data-[dragging=true]:bg-slate-100"
       data-dragging={dragging}
     >
       <span className="place-self-center text-green-500 basis-5">
@@ -100,7 +108,7 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
         inputProps={{ className: "w-full outline-none grow" }}
       >
         <span
-          className="flex flex-row gap-1 place-self-center text-left grow hover:bg-slate-100 hover:cursor-pointer group-data-[dragging=true]:bg-slate-100"
+          className="flex flex-row gap-1 p-1 place-self-center text-left grow hover:bg-slate-100 hover:cursor-pointer group-data-[dragging=true]:bg-slate-100"
           data-dragging={dragging}
           draggable={user?.id == directory.user.id}
           onClick={doGoToDirectory}

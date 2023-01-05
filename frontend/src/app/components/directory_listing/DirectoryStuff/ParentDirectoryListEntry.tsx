@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import client from "../../../client";
 import useDirectory from "../../../context/DirectoryContext";
 
@@ -10,6 +11,8 @@ interface ParentDirectoryListEntryProps {
 const ParentDirectoryListEntry = ({ id }: ParentDirectoryListEntryProps) => {
   const [dragging, setDragging] = React.useState(false);
   const { setCurrentDirectoryId, directoryRefetch } = useDirectory();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const moveFiles = (files: number[]) => {
     setDragging(false);
@@ -24,6 +27,11 @@ const ParentDirectoryListEntry = ({ id }: ParentDirectoryListEntryProps) => {
         parent: id,
       })
       .then(directoryRefetch);
+  };
+
+  const doGoToDirectory = () => {
+    //navigate(location.pathname.split("/").slice(0, -1).join("/"));
+    setCurrentDirectoryId(id);
   };
 
   return (
@@ -44,7 +52,7 @@ const ParentDirectoryListEntry = ({ id }: ParentDirectoryListEntryProps) => {
           moveDirectory(JSON.parse(moved_directory));
         }
       }}
-      onClick={() => setCurrentDirectoryId(id)}
+      onClick={doGoToDirectory}
     >
       Go up
     </div>

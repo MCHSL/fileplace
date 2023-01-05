@@ -32,6 +32,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://192.168.0.236:5173",
+    "http://25.64.141.174:5173",
 ]
 CSRF_COOKIE_SECURE = False
 
@@ -166,6 +167,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://192.168.0.236:5173",
+    "http://25.64.141.174:5173",
 ]
 
 REST_FRAMEWORK = {

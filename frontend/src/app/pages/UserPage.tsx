@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import client from "../client";
 import DirectoryListing from "../components/directory_listing/DirectoryListing";
 import LoggedInAs from "../components/accounts/LoggedInAs";
@@ -14,14 +14,13 @@ interface UserInfo {
 
 const UserPage = () => {
   const params = useParams();
-  const username = useMemo(() => params.username as string, []);
-  const navigate = useNavigate();
+  const username = params.username as string;
+  const location = useLocation();
 
   const [userInfo, setUserInfo] = useState<UserInfo | null>();
   const [userError, setUserError] = useState(null);
 
-  const { currentDirectory, setCurrentDirectoryId, directoryCancel } =
-    useDirectory();
+  const { setCurrentDirectoryId, directoryCancel } = useDirectory();
 
   useEffect(() => {
     client
@@ -34,27 +33,30 @@ const UserPage = () => {
       });
 
     return () => {
-      console.log("Cancelling directory listing");
       directoryCancel();
     };
   }, [username]);
 
   useEffect(() => {
     if (userInfo) {
-      setCurrentDirectoryId(userInfo.root_directory);
+      const path = location.pathname.split("/").slice(3);
+      if (path[0]) {
+        client
+          .post("/directory/find", {
+            path,
+            root_directory: userInfo.root_directory,
+          })
+          .then((res) => {
+            setCurrentDirectoryId(res.data.id);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else {
+        setCurrentDirectoryId(userInfo.root_directory);
+      }
     }
   }, [userInfo]);
-
-  useEffect(() => {
-    navigate(
-      `/user/${username}/${
-        currentDirectory?.path
-          .map((d) => d.name)
-          .slice(1)
-          .join("/") || ""
-      }`
-    );
-  }, [username, currentDirectory]);
 
   return (
     <div>

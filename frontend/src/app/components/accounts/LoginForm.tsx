@@ -8,25 +8,23 @@ import useUser from "../../context/UserContext";
 const LoginForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, refetchUser } = useUser();
+  const { user, userLoading, refetchUser } = useUser();
   const [error, setError] = useState<string | null>();
   const [loading, setLoading] = useState<boolean>();
 
   useEffect(() => {
-    if (user) {
-      navigate(location.state?.next || "/home");
+    if (user && !userLoading) {
+      navigate(location.state?.next || "/user/" + user.username);
       return;
     }
-  }, [user]);
+  }, [user, userLoading]);
 
   const onSubmit = (values: any) => {
     setError(null);
     setLoading(true);
     client
       .post("/user/login", values)
-      .then(() => {
-        refetchUser().then(() => navigate(location.state?.next || "/home"));
-      })
+      .then(refetchUser)
       .catch((e) => {
         if (!e.response) {
           setError("Something went wrong. Please try again later.");

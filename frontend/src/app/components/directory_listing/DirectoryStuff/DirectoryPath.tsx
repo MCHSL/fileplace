@@ -1,12 +1,23 @@
 import { faLock, faUnlockAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
+import client from "../../../client";
 import useDirectory from "../../../context/DirectoryContext";
 import useUser from "../../../context/UserContext";
 
 const DirectoryPath = () => {
-  const { currentDirectory, setCurrentDirectoryId } = useDirectory();
+  const { currentDirectory, setCurrentDirectoryId, directoryRefetch } =
+    useDirectory();
   const { user } = useUser();
+
+  const togglePrivate = () => {
+    client
+      .post("/directory/set_private", {
+        directory: currentDirectory?.id,
+        private: !currentDirectory?.private,
+      })
+      .then(directoryRefetch);
+  };
 
   if (!currentDirectory) {
     return null;
@@ -34,11 +45,15 @@ const DirectoryPath = () => {
     user?.id != currentDirectory?.user.id ? (
       <></>
     ) : (
-      <span className="p-1 flex">
+      <span className="p-1 flex hover:cursor-pointer" onClick={togglePrivate}>
         {currentDirectory?.private ? (
-          <FontAwesomeIcon icon={faLock} fixedWidth />
+          <FontAwesomeIcon icon={faLock} fixedWidth className="text-red-500" />
         ) : (
-          <FontAwesomeIcon icon={faUnlockAlt} fixedWidth />
+          <FontAwesomeIcon
+            icon={faUnlockAlt}
+            fixedWidth
+            className="text-green-500"
+          />
         )}
       </span>
     );

@@ -43,6 +43,7 @@ urlpatterns = (
                         views.set_directory_private,
                         name="set_directory_private",
                     ),
+                    path("find", views.find_directory, name="find_directory"),
                 ]
             ),
         ),

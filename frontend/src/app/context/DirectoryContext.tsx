@@ -1,5 +1,7 @@
+import { faCommentsDollar } from "@fortawesome/free-solid-svg-icons";
 import useAxios from "axios-hooks";
 import React, { useCallback, useEffect, useMemo } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import client from "../client";
 import useUser, { User } from "./UserContext";
 
@@ -42,6 +44,16 @@ const DirectoryContext = React.createContext<DirectoryState>(
   {} as DirectoryState
 );
 
+const compare = (a, b) => {
+  if (a.name < b.name) {
+    return -1;
+  }
+  if (a.name > b.name) {
+    return 1;
+  }
+  return 0;
+};
+
 export const DirectoryProvider = ({
   children,
 }: {
@@ -60,6 +72,11 @@ export const DirectoryProvider = ({
   const [renamedFile, setRenamedFile] = React.useState<any>(null);
 
   const { user, userLoading } = useUser();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
+
+  const username = params.username as string;
 
   const [abortController, setAbortController] =
     React.useState<AbortController | null>();
@@ -84,6 +101,10 @@ export const DirectoryProvider = ({
           setLoading(false);
         });
     }
+  }, [currentDirectoryId, userLoading]);
+
+  useEffect(() => {
+    directoryRefetch();
   }, [currentDirectoryId, userLoading]);
 
   const directoryCancel = () => {
@@ -116,8 +137,24 @@ export const DirectoryProvider = ({
   };
 
   useEffect(() => {
-    directoryRefetch();
-  }, [currentDirectoryId, user, userLoading]);
+    if (!data) {
+      return;
+    }
+    if (!currentDirectoryId) {
+      return;
+    }
+    if (location.state?.leaving) {
+      return;
+    }
+    navigate(
+      `/user/${username}/${
+        data.path
+          .map((d) => d.name)
+          .slice(1)
+          .join("/") || ""
+      }`
+    );
+  }, [data, currentDirectoryId, username, location.pathname]);
 
   useEffect(() => {
     if (renamedFile) {
@@ -144,35 +181,33 @@ export const DirectoryProvider = ({
     }
   }, [renamedFile]);
 
-  let dataAfterCache = data || previousData;
+  const dataAfterCache = data || previousData;
 
-  if (dataAfterCache && filter) {
-    dataAfterCache.files = dataAfterCache?.files.filter((file) =>
-      file.name.includes(filter)
-    );
-    dataAfterCache.children = dataAfterCache?.children.filter((child) =>
-      child.name.includes(filter)
-    );
-  }
+  const lowerFilter = filter?.toLowerCase();
 
-  if (dataAfterCache) {
-    const compare = (a, b) => {
-      if (a.name < b.name) {
-        return -1;
-      }
-      if (a.name > b.name) {
-        return 1;
-      }
-      return 0;
-    };
-    dataAfterCache.files = dataAfterCache.files.sort(compare);
-    dataAfterCache.children = dataAfterCache.children.sort(compare);
-  }
+  const dataAfterFilter =
+    dataAfterCache && filter
+      ? {
+          ...dataAfterCache,
+          files: dataAfterCache?.files.filter((file) =>
+            file.name.toLowerCase().includes(lowerFilter!)
+          ),
+          children: dataAfterCache?.children.filter((child) =>
+            child.name.toLowerCase().includes(lowerFilter!)
+          ),
+        }
+      : dataAfterCache;
+
+  const dataAfterSort = dataAfterFilter && {
+    ...dataAfterFilter,
+    files: dataAfterFilter?.files.sort(compare),
+    children: dataAfterFilter?.children.sort(compare),
+  };
 
   return (
     <DirectoryContext.Provider
       value={{
-        currentDirectory: dataAfterCache,
+        currentDirectory: dataAfterSort,
         setCurrentDirectoryId,
         directoryLoading: loading,
         directoryError: error,

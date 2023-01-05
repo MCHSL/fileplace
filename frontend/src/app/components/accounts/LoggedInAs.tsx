@@ -11,7 +11,7 @@ const LoggedInAs = () => {
   const doLogout = () => {
     logout()
       .then(directoryClear)
-      .then(() => navigate("/login"));
+      .then(() => navigate("/login", { state: { leaving: true } }));
   };
 
   if (!user) {
@@ -19,7 +19,9 @@ const LoggedInAs = () => {
       <div>
         <button
           onClick={() =>
-            navigate("/login", { state: { next: window.location.pathname } })
+            navigate("/login", {
+              state: { next: window.location.pathname, leaving: true },
+            })
           }
           className="
 		  bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-1

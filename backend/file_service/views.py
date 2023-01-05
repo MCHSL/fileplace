@@ -1,4 +1,5 @@
 from typing import List
+from django.conf import settings
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
@@ -77,17 +78,15 @@ class DirectorySerializer(serializers.ModelSerializer):
 
     def get_children(self, obj: Directory):
         if self.context.get("request").user == obj.user:  # type: ignore
-            children = obj.children.all()  # type: ignore
+            return cache.get_or_set(f"children:{obj.pk}", lambda: DirectoryBasicSerializer(obj.children.all(), read_only=True, many=True).data)  # type: ignore
         else:
-            children = obj.children.filter(private=False)  # type: ignore
-        return DirectoryBasicSerializer(children, read_only=True, many=True).data
+            return DirectoryBasicSerializer(obj.children.filter(private=False), read_only=True, many=True).data  # type: ignore
 
     def get_files(self, obj: Directory):
         if self.context.get("request").user == obj.user:  # type: ignore
-            files = obj.files.all()  # type: ignore
+            return cache.get_or_set(f"files:{obj.pk}", lambda: FileSerializer(obj.files.all(), read_only=True, many=True).data)  # type: ignore
         else:
-            files = obj.files.filter(private=False)  # type: ignore
-        return FileSerializer(files, read_only=True, many=True).data
+            return FileSerializer(obj.files.filter(private=False), read_only=True, many=True).data  # type: ignore
 
 
 @login_required
@@ -169,10 +168,17 @@ def check_username(request: HttpRequest, username: str) -> JsonResponse:
 
 @require_safe
 def get_user(request: HttpRequest, username: str) -> JsonResponse:
-    user = User.objects.get(username=username)
+    cached = cache.get(f"user:username:{username}")
+    if cached:
+        return JsonResponse(cached)
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        raise Http404()
     serialized = UserSerializer(user).data
     if not request.user.is_staff:  # type: ignore
         serialized["email"] = "<redacted>"
+    cache.set(f"user:username:{username}", serialized)
     return JsonResponse(serialized)
 
 
@@ -191,6 +197,7 @@ def upload(request: HttpRequest) -> HttpResponse:
     )
     file_instance.file_ref.save(file_name, file)
     file_instance.save()
+    cache.delete(f"files:{directory.pk}")
     return HttpResponse(FileSerializer(file_instance).data)
 
 
@@ -200,7 +207,13 @@ def download(request: HttpRequest, file_id) -> HttpResponse:
     if file.private and file.user != request.user:
         raise Http404()
 
-    response = HttpResponse(file.file_ref)
+    if settings.DEBUG:
+        response = HttpResponse(file.file_ref)
+        response["Content-Disposition"] = "attachment; filename=%s" % file.name
+        return response
+
+    response = HttpResponse()
+    response["X-Accel-Redirect"] = f"/protected/{file.file_ref.name}"
     response["Content-Disposition"] = "attachment; filename=%s" % file.name
     return response
 
@@ -211,12 +224,18 @@ def delete_files(request: HttpRequest) -> HttpResponse:
     errors = []
     file_ids = json.loads(request.body)["files"]
 
+    directory_ids = set()
+
     for file in File.objects.filter(pk__in=map(int, file_ids)):
         if file.user != request.user:
             errors.append(f"File {file.name} does not belong to user {request.user}")
             continue
+        directory_ids.add(file.directory.pk)  # type: ignore
         file.file_ref.delete()
         file.delete()
+
+    cache.delete_many([f"files:{directory_id}" for directory_id in directory_ids])
+
     if not errors:
         return HttpResponse("Files deleted successfully")
     else:
@@ -228,16 +247,23 @@ def delete_files(request: HttpRequest) -> HttpResponse:
 def move_files(request: HttpRequest) -> HttpResponse:
     errors = []
     req = json.loads(request.body)
-    file_ids = req["files"]
+    file_ids = map(int, req["files"])
     directory_id = req["directory"]
     directory = Directory.objects.get(pk=directory_id)
 
-    for file in File.objects.filter(pk__in=map(int, file_ids)):
+    former_directory_ids = set()
+
+    for file in File.objects.filter(pk__in=file_ids):
         if file.user != request.user:
             errors.append(f"File {file.name} does not belong to user {request.user}")
             continue
+        former_directory_ids.add(file.directory.pk)  # type: ignore
         file.directory = directory
         file.save()
+
+    cache.delete_many([f"files:{pk}" for pk in former_directory_ids])
+    cache.delete(f"files:{directory.pk}")  # type: ignore
+
     if not errors:
         return HttpResponse("Files moved successfully")
     else:
@@ -255,6 +281,7 @@ def rename_file(request: HttpRequest) -> HttpResponse:
         return HttpResponse("Unauthorized", status=401)
     file.name = new_name
     file.save()
+    cache.delete(f"files:{file.directory.pk}")  # type: ignore
     return HttpResponse("File renamed successfully")
 
 
@@ -268,6 +295,7 @@ def set_file_private(request: HttpRequest) -> HttpResponse:
     if file.user != request.user:
         return HttpResponse("Unauthorized", status=401)
     file.set_private(private)
+    cache.delete(f"files:{file.directory.pk}")  # type: ignore
     return HttpResponse("File set to private successfully")
 
 
@@ -283,6 +311,8 @@ def delete_directory(request: HttpRequest) -> HttpResponse:
         file.file_ref.delete()
         file.delete()
     directory.delete()
+    cache.delete(f"children:{directory.pk}")
+    cache.delete(f"files:{directory.pk}")
     return HttpResponse("Directory deleted successfully")
 
 
@@ -311,6 +341,7 @@ def create_directory(request: HttpRequest) -> HttpResponse:
         return HttpResponse("Unauthorized", status=401)
     directory = Directory(user=request.user, name=name, parent=parent)
     directory.save()
+    cache.delete(f"children:{parent.pk}")
     return JsonResponse(
         DirectorySerializer(directory, context={"request": request}).data
     )
@@ -326,6 +357,9 @@ def move_directory(request: HttpRequest) -> HttpResponse:
     parent: Directory = Directory.objects.get(pk=parent_id)
     if directory.user != request.user or parent.user != request.user:
         return HttpResponse("Unauthorized", status=401)
+
+    cache.delete(f"children:{directory.parent.pk}")
+    cache.delete(f"children:{parent.pk}")
     directory.parent = parent
     directory.save()
     return JsonResponse(
@@ -344,6 +378,7 @@ def rename_directory(request: HttpRequest) -> HttpResponse:
         return HttpResponse("Unauthorized", status=401)
     directory.name = new_name
     directory.save()
+    cache.delete(f"children:{directory.parent.pk}")
     return HttpResponse("Directory renamed successfully")
 
 
@@ -357,7 +392,19 @@ def set_directory_private(request: HttpRequest) -> HttpResponse:
     if directory.user != request.user:
         return HttpResponse("Unauthorized", status=401)
     directory.set_private(private)
+    cache.delete(f"children:{directory.parent.pk}")
     return HttpResponse("Directory set to private successfully")
+
+
+@require_POST
+def find_directory(request: HttpRequest) -> JsonResponse:
+    data = json.loads(request.body)
+    path: List[str] = data["path"]
+    root_directory: int = data["root_directory"]
+
+    root = Directory.objects.get(pk=root_directory)
+    result = root.follow_path(path)
+    return JsonResponse(DirectorySerializer(result, context={"request": request}).data)
 
 
 @login_required

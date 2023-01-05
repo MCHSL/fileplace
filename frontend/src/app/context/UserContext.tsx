@@ -25,16 +25,21 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const refetchUser = useCallback(async () => {
     setUserLoading(true);
     setUserError(false);
-    try {
-      const { data } = await client.get("/user");
-      setUser(data);
-      setUserError(false);
-    } catch (error) {
-      setUserError(true);
-      setUser(null);
-    } finally {
-      setUserLoading(false);
-    }
+    setUser(null);
+
+    client
+      .get("/user")
+      .then((res) => {
+        setUser(res.data);
+        setUserError(false);
+      })
+      .catch((err) => {
+        setUser(null);
+        setUserError(true);
+      })
+      .finally(() => {
+        setUserLoading(false);
+      });
   }, []);
 
   const logout = useCallback(async () => {
