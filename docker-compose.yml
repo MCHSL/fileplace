@@ -21,6 +21,9 @@ services:
       - ./data:/var/fileplace
     depends_on:
       - db
+      - cache
+    env_file:
+      - backend.env
     init: true
 
   cache:
