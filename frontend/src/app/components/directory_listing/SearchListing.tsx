@@ -52,6 +52,7 @@ const SearchListing = () => {
         <DirectoryList
           directories={searchResults?.directories}
           currentDirectory={null}
+          directoryError={null}
           directoryLoading={searchLoading}
           directoryRefetch={refetch}
         />

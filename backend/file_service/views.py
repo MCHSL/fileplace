@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.files.uploadedfile import UploadedFile
 from django.views.decorators.http import require_POST, require_safe
 from django.core.cache import cache
+from django.shortcuts import get_object_or_404
 import requests
 
 from .models import Directory, File, User
@@ -105,7 +106,6 @@ def oauth_login(request: HttpRequest, provider: str) -> HttpResponse:
         return HttpResponse("Invalid provider", status=400)
 
     data = json.loads(request.body)
-    print(data)
 
     token = requests.post(
         "https://oauth2.googleapis.com/token",
@@ -221,13 +221,12 @@ def get_user(request: HttpRequest, username: str) -> JsonResponse:
     cached = cache.get(f"user:username:{username}")
     if cached:
         return JsonResponse(cached)
-    try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
-        raise Http404()
+
+    user = get_object_or_404(User, username=username)
     serialized = UserSerializer(user).data
     if not request.user.is_staff:  # type: ignore
         serialized["email"] = "<redacted>"
+
     cache.set(f"user:username:{username}", serialized)
     return JsonResponse(serialized)
 
@@ -257,7 +256,8 @@ def upload(request: HttpRequest) -> HttpResponse:
 
 @require_safe
 def download(request: HttpRequest, file_id) -> HttpResponse:
-    file = File.objects.get(pk=file_id)
+    file = get_object_or_404(File, pk=file_id)
+
     if file.private and file.user != request.user:
         raise Http404()
 

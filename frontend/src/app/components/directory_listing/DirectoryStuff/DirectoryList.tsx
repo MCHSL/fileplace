@@ -11,6 +11,7 @@ import ParentDirectoryListEntry from "./ParentDirectoryListEntry";
 interface DirectoryListProps {
   currentDirectory: Directory | null;
   directoryLoading: boolean;
+  directoryError: any;
   directories: BasicDirectory[] | null;
   directoryRefetch: () => void;
 }
@@ -19,6 +20,7 @@ const DirectoryList = ({
   currentDirectory,
   directories,
   directoryLoading,
+  directoryError,
 }: DirectoryListProps) => {
   const { user } = useUser();
 
@@ -33,6 +35,12 @@ const DirectoryList = ({
         </div>
       </div>
     );
+  }
+
+  console.log(directoryError);
+
+  if (directoryError) {
+    return <span className="flex text-lg">Directory not found.</span>;
   }
 
   return (

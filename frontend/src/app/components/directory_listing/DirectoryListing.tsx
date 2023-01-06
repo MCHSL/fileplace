@@ -11,6 +11,7 @@ const DirectoryListing = () => {
   const {
     currentDirectory,
     directoryLoading,
+    directoryError,
     directoryRefetch,
     filter,
     setFilter,
@@ -18,19 +19,17 @@ const DirectoryListing = () => {
   const navigate = useNavigate();
   const { user } = useUser();
 
+  if (directoryError) {
+    return (
+      <span className="flex text-xl font-bold justify-center mt-10">
+        Directory not found.
+      </span>
+    );
+  }
+
   if (!currentDirectory) {
     return null;
   }
-
-  /*if (userError) {
-    return (
-      <div>
-        <span className="text-red-500">
-          An error occured while loading user data, please try again later.
-        </span>
-      </div>
-    );
-  }*/
 
   return (
     <div className="flex flex-col gap-4 justify-center">
@@ -44,8 +43,8 @@ const DirectoryListing = () => {
         />
         <button
           onClick={() =>
-            navigate(`/search/${currentDirectory.user.username}`, {
-              state: { leaving: true, from: currentDirectory.id },
+            navigate(`/search/${currentDirectory?.user.username}`, {
+              state: { leaving: true, from: currentDirectory?.id },
             })
           }
           className="
@@ -59,6 +58,7 @@ const DirectoryListing = () => {
       <DirectoryList
         directories={currentDirectory.children}
         currentDirectory={currentDirectory}
+        directoryError={directoryError}
         directoryLoading={directoryLoading}
         directoryRefetch={directoryRefetch}
       />

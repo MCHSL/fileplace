@@ -35,14 +35,31 @@ const LoggedInAs = () => {
 
   return (
     <div>
-      Logged in as {user?.username} (
-      <span
-        className="underline text-blue-400 hover:cursor-pointer"
-        onClick={doLogout}
-      >
-        Logout
-      </span>
-      )
+      <span className="pr-3">Logged in as {user?.username}</span>
+      {user && (
+        <span>
+          <button
+            onClick={() =>
+              navigate(`/user/${user.username}`, {
+                state: { leaving: true },
+              })
+            }
+            className="
+		  bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-1
+		"
+          >
+            Home
+          </button>
+          <button
+            onClick={doLogout}
+            className="
+		  bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-1
+		"
+          >
+            Logout
+          </button>
+        </span>
+      )}
     </div>
   );
 };
