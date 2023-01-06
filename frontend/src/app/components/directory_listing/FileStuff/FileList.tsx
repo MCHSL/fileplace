@@ -2,8 +2,7 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useCallback } from "react";
 import client from "../../../client";
-import { Directory, UserFile } from "../../../context/DirectoryContext";
-import { User } from "../../../context/UserContext";
+import { UserFile } from "../../../context/DirectoryContext";
 import FileListEntry from "./FileListEntry";
 
 interface FileListProps {

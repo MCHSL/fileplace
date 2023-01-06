@@ -44,16 +44,6 @@ const DirectoryContext = React.createContext<DirectoryState>(
   {} as DirectoryState
 );
 
-const compare = (a, b) => {
-  if (a.name < b.name) {
-    return -1;
-  }
-  if (a.name > b.name) {
-    return 1;
-  }
-  return 0;
-};
-
 export const DirectoryProvider = ({
   children,
 }: {
@@ -137,15 +127,18 @@ export const DirectoryProvider = ({
   };
 
   useEffect(() => {
-    if (!data) {
+    if (!data || loading) {
       return;
     }
-    if (!currentDirectoryId) {
+    const currentPath = data.path
+      .slice(1)
+      .map((d) => d.name)
+      .join("/");
+    const locationPath = location.pathname.split("/").slice(3).join("/");
+    if (currentPath === locationPath) {
       return;
     }
-    if (location.state?.leaving) {
-      return;
-    }
+
     navigate(
       `/user/${username}/${
         data.path
@@ -154,7 +147,15 @@ export const DirectoryProvider = ({
           .join("/") || ""
       }`
     );
-  }, [data, currentDirectoryId, username, location.pathname]);
+  }, [data, loading]);
+
+  useEffect(() => {
+    return () => {
+      if (!location.pathname.startsWith(`/user`)) {
+        directoryClear();
+      }
+    };
+  }, [location.pathname]);
 
   useEffect(() => {
     if (renamedFile) {
@@ -200,8 +201,10 @@ export const DirectoryProvider = ({
 
   const dataAfterSort = dataAfterFilter && {
     ...dataAfterFilter,
-    files: dataAfterFilter?.files.sort(compare),
-    children: dataAfterFilter?.children.sort(compare),
+    files: dataAfterFilter?.files.sort((a, b) => a.name.localeCompare(b.name)),
+    children: dataAfterFilter?.children.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    ),
   };
 
   return (

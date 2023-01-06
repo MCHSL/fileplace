@@ -65,5 +65,5 @@ urlpatterns = (
             ),
         )
     ]
-    + [path("search", views.search_files, name="search_files")]
+    + [path("search", views.search, name="search")]
 )

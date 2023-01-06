@@ -1,5 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useNavigationType,
+  useParams,
+} from "react-router-dom";
 import client from "../client";
 import DirectoryListing from "../components/directory_listing/DirectoryListing";
 import LoggedInAs from "../components/accounts/LoggedInAs";
@@ -14,10 +19,12 @@ interface UserInfo {
 
 const UserPage = () => {
   const params = useParams();
+  const navigationType = useNavigationType();
   const username = params.username as string;
   const location = useLocation();
 
   const [userInfo, setUserInfo] = useState<UserInfo | null>();
+  const [userLoading, setUserLoading] = useState(false);
   const [userError, setUserError] = useState(null);
 
   const { setCurrentDirectoryId, directoryCancel } = useDirectory();
@@ -37,26 +44,37 @@ const UserPage = () => {
     };
   }, [username]);
 
-  useEffect(() => {
-    if (userInfo) {
-      const path = location.pathname.split("/").slice(3);
-      if (path[0]) {
-        client
-          .post("/directory/find", {
-            path,
-            root_directory: userInfo.root_directory,
-          })
-          .then((res) => {
-            setCurrentDirectoryId(res.data.id);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      } else {
-        setCurrentDirectoryId(userInfo.root_directory);
-      }
+  const findAndSetCurrentDirectory = () => {
+    if (!userInfo) return;
+    const path = location.pathname.split("/").slice(3);
+    if (path[0]) {
+      client
+        .post("/directory/find", {
+          path,
+          root_directory: userInfo.root_directory,
+        })
+        .then((res) => {
+          setCurrentDirectoryId(res.data.id);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      setCurrentDirectoryId(userInfo.root_directory);
     }
-  }, [userInfo]);
+  };
+
+  useEffect(() => {
+    if (userInfo && !userLoading) {
+      findAndSetCurrentDirectory();
+    }
+  }, [userInfo, userLoading]);
+
+  useEffect(() => {
+    if (navigationType === "POP") {
+      findAndSetCurrentDirectory();
+    }
+  }, [navigationType, location.pathname]);
 
   return (
     <div>

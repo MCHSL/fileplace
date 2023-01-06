@@ -43,7 +43,11 @@ const DirectoryListing = () => {
           className="border border-gray-300 rounded-md p-2 w-3/4 place-self-center mt-5"
         />
         <button
-          onClick={() => navigate("/search")}
+          onClick={() =>
+            navigate(`/search/${currentDirectory.user.username}`, {
+              state: { leaving: true, from: currentDirectory.id },
+            })
+          }
           className="
 		  bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-1
 		"
@@ -52,7 +56,12 @@ const DirectoryListing = () => {
         </button>
       </span>
       <DirectoryPath />
-      <DirectoryList />
+      <DirectoryList
+        directories={currentDirectory.children}
+        currentDirectory={currentDirectory}
+        directoryLoading={directoryLoading}
+        directoryRefetch={directoryRefetch}
+      />
       <FileList
         owned={currentDirectory.user.id == user?.id}
         files={currentDirectory.files}

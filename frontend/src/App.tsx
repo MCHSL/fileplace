@@ -16,9 +16,11 @@ configure({
 
 const DirectoryLayout = () => {
   return (
-    <DirectoryProvider>
-      <Outlet />
-    </DirectoryProvider>
+    <SearchProvider>
+      <DirectoryProvider>
+        <Outlet />
+      </DirectoryProvider>
+    </SearchProvider>
   );
 };
 
@@ -49,9 +51,7 @@ const router = createBrowserRouter([
 function App() {
   return (
     <UserProvider>
-      <SearchProvider>
-        <RouterProvider router={router} />
-      </SearchProvider>
+      <RouterProvider router={router} />
     </UserProvider>
   );
 }

@@ -192,6 +192,10 @@ def upload(request: HttpRequest) -> HttpResponse:
     file: UploadedFile = request.FILES["file"]
     file_name = file.name
     file_size = file.size
+
+    if File.objects.filter(directory=directory, name=file_name).exists():
+        return HttpResponse("File already exists", status=400)
+
     file_instance = File(
         user=request.user, name=file_name, size=file_size, directory=directory
     )
@@ -339,6 +343,10 @@ def create_directory(request: HttpRequest) -> HttpResponse:
     parent: Directory = Directory.objects.get(pk=parent_id)
     if parent.user != request.user:
         return HttpResponse("Unauthorized", status=401)
+
+    if Directory.objects.filter(name=name, parent=parent).exists():
+        return HttpResponse("Directory already exists", status=400)
+
     directory = Directory(user=request.user, name=name, parent=parent)
     directory.save()
     cache.delete(f"children:{parent.pk}")
@@ -407,15 +415,27 @@ def find_directory(request: HttpRequest) -> JsonResponse:
     return JsonResponse(DirectorySerializer(result, context={"request": request}).data)
 
 
-@login_required
 @require_safe
-def search_files(request: HttpRequest) -> HttpResponse:
-    query = request.GET["query"]
-    if len(query) < 3:
-        return HttpResponse("Query must be at least 3 characters long", status=400)
+def search(request: HttpRequest) -> HttpResponse:
+    username = request.GET.get("username")
+    if not username:
+        return HttpResponse("Username must be specified", status=400)
+    query = request.GET.get("query")
+    if not query:
+        return HttpResponse("Query must be specified", status=400)
 
-    files = File.objects.filter(user=request.user, name__icontains=query)
+    user = User.objects.get(username=username)
+    if user == request.user:
+        files = File.objects.filter(user=user, name__icontains=query)
+        directories = Directory.objects.filter(user=user, name__icontains=query)
+    else:
+        files = File.objects.filter(user=user, name__icontains=query, private=False)
+        directories = Directory.objects.filter(
+            user=user, name__icontains=query, private=False
+        )
+
     result = {
         "files": FileSerializer(files, many=True).data,
+        "directories": DirectoryBasicSerializer(directories, many=True).data,
     }
     return JsonResponse(result, safe=False)

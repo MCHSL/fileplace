@@ -1,5 +1,6 @@
 import useAxios from "axios-hooks";
 import React, { useCallback, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import { BasicDirectory, UserFile } from "./DirectoryContext";
 
 export interface SearchResults {
@@ -12,7 +13,7 @@ interface SearchState {
   searchLoading: boolean;
   searchError: any;
   searchResults: SearchResults;
-  doSearch: (query: string) => void;
+  doSearch: (query: string, username: string) => void;
   clearSearch: () => void;
 }
 
@@ -32,11 +33,12 @@ export const SearchProvider = ({ children }: { children: React.ReactNode }) => {
     emptyData as SearchResults
   );
 
-  const searchRefetch = useCallback((query: string) => {
+  const searchRefetch = useCallback((query: string, username: string) => {
     setQuery(query);
     setPreviousData(data);
+    if (!query || !username) return;
     refetch({
-      url: `/search?query=${query}`,
+      url: `/search?query=${query}&username=${username}`,
     });
   }, []);
 
@@ -44,10 +46,13 @@ export const SearchProvider = ({ children }: { children: React.ReactNode }) => {
     setPreviousData(emptyData);
   }, []);
 
-  const finalData = useMemo(
-    () => data || previousData || emptyData,
-    [data, previousData, emptyData]
-  );
+  const dataAfterCache = data || previousData || emptyData;
+  const finalData = {
+    directories: dataAfterCache.directories.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    ),
+    files: dataAfterCache.files.sort((a, b) => a.name.localeCompare(b.name)),
+  };
 
   return (
     <SearchContext.Provider
