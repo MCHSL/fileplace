@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /code
 
 RUN apt-get update
-RUN apt-get install -y build-essential dos2unix libpq-dev
+RUN apt-get install -y build-essential dos2unix libpq-dev build-dep python3-lxml
 
 COPY requirements.txt .
 

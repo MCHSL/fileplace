@@ -25,5 +25,4 @@ import file_service.views
 urlpatterns = [
     path("api/", include(file_service.urls)),
     path("download/<int:file_id>", file_service.views.download, name="direct_download"),
-    path("__debug__/", include("debug_toolbar.urls")),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]
