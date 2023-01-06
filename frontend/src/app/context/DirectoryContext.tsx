@@ -139,6 +139,7 @@ export const DirectoryProvider = ({
       return;
     }
 
+    console.log("uh?");
     navigate(
       `/user/${username}/${
         data.path

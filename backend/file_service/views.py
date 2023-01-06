@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.files.uploadedfile import UploadedFile
 from django.views.decorators.http import require_POST, require_safe
 from django.core.cache import cache
+import requests
 
 from .models import Directory, File, User
 from .decorators import login_required
@@ -95,6 +96,55 @@ def user(request: HttpRequest) -> JsonResponse:
         f"user:{request.user.pk}", lambda: UserSerializer(request.user).data
     )
     return JsonResponse(data)
+
+
+@csrf_exempt
+@require_POST
+def oauth_login(request: HttpRequest, provider: str) -> HttpResponse:
+    if provider != "google":
+        return HttpResponse("Invalid provider", status=400)
+
+    data = json.loads(request.body)
+    print(data)
+
+    token = requests.post(
+        "https://oauth2.googleapis.com/token",
+        data={
+            "code": data["code"],
+            "client_id": settings.GOOGLE_CLIENT_ID,
+            "client_secret": settings.GOOGLE_CLIENT_SECRET,
+            "redirect_uri": "postmessage",
+            "grant_type": "authorization_code",
+        },
+    ).json()["access_token"]
+
+    email = requests.get(
+        "https://www.googleapis.com/oauth2/v2/userinfo",
+        headers={"Authorization": f"Bearer {token}"},
+    ).json()["email"]
+
+    user = User.objects.filter(email=email).first()
+    if user:
+        login(request, user)
+        return HttpResponse("OK")
+
+    user = User(username=None, email=email, oauth_provider=provider)
+    user.set_unusable_password()
+    user.save()
+    login(request, user)
+
+    return HttpResponse("OK")
+
+
+@require_POST
+def set_username(request: HttpRequest) -> HttpResponse:
+    data = json.loads(request.body)
+    username: str = data["username"]
+    if User.objects.filter(username=username).exists():
+        return HttpResponse("Username already exists", status=400)
+    request.user.username = username  # type: ignore
+    request.user.save()
+    return HttpResponse("OK")
 
 
 @csrf_exempt

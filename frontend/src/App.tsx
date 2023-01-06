@@ -9,6 +9,8 @@ import { DirectoryProvider } from "./app/context/DirectoryContext";
 import { SearchProvider } from "./app/context/SearchContext";
 import { UserProvider } from "./app/context/UserContext";
 import UserPage from "./app/pages/UserPage";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import SetName from "./app/components/accounts/SetName";
 
 configure({
   axios: client,
@@ -16,11 +18,13 @@ configure({
 
 const DirectoryLayout = () => {
   return (
-    <SearchProvider>
-      <DirectoryProvider>
-        <Outlet />
-      </DirectoryProvider>
-    </SearchProvider>
+    <UserProvider>
+      <SearchProvider>
+        <DirectoryProvider>
+          <Outlet />
+        </DirectoryProvider>
+      </SearchProvider>
+    </UserProvider>
   );
 };
 
@@ -28,6 +32,10 @@ const router = createBrowserRouter([
   {
     element: <DirectoryLayout />,
     children: [
+      {
+        path: "/",
+        element: <LoginForm />,
+      },
       {
         path: "/login",
         element: <LoginForm />,
@@ -44,15 +52,19 @@ const router = createBrowserRouter([
         path: "/user/:username/*",
         element: <UserPage />,
       },
+      {
+        path: "/set_name",
+        element: <SetName />,
+      },
     ],
   },
 ]);
 
 function App() {
   return (
-    <UserProvider>
+    <GoogleOAuthProvider clientId="668871573548-9attupn5r13c0vu0agmt077it8oirrrh.apps.googleusercontent.com">
       <RouterProvider router={router} />
-    </UserProvider>
+    </GoogleOAuthProvider>
   );
 }
 

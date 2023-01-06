@@ -31,7 +31,7 @@ const UserPage = () => {
 
   useEffect(() => {
     client
-      .get(`/user/${username}`)
+      .get(`/user/get/${username}`)
       .then((res) => {
         setUserInfo(res.data);
       })

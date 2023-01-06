@@ -8,7 +8,10 @@ module.exports = {
         extend: {
             transitionProperty: {
                 height: 'height'
-            }
+            },
+			backgroundImage: {
+				"google": "url('/assets/google-login.svg')",
+			}
         }
   	},
   variants: {

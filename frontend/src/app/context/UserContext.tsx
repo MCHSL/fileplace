@@ -43,6 +43,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const logout = useCallback(async () => {
+    setUser(null);
     return client.post("/user/logout").then(refetchUser);
   }, []);
 

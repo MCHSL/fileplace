@@ -18,9 +18,19 @@ urlpatterns = (
                         name="check_username",
                     ),
                     path(
-                        "<str:username>",
+                        "get/<str:username>",
                         views.get_user,
                         name="get_user",
+                    ),
+                    path(
+                        "oauth/<str:provider>",
+                        views.oauth_login,
+                        name="oauth",
+                    ),
+                    path(
+                        "set_username",
+                        views.set_username,
+                        name="set_username",
                     ),
                 ]
             ),

@@ -11,6 +11,9 @@ class User(AbstractUser):
         "Directory", on_delete=models.CASCADE, related_name="root_for", null=True
     )
 
+    oauth_provider = models.TextField(null=True)
+    username = models.TextField(unique=True, null=True)
+
     def save(self, *args, **kwargs):
         if not self.pk:
             super(User, self).save(*args, **kwargs)

@@ -25,6 +25,7 @@ const SearchListing = () => {
   };
 
   const doGoBack = () => {
+    console.log("hello?");
     navigate(`/user/${username}/`);
   };
 
