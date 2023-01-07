@@ -89,7 +89,7 @@ const FileListEntry = ({
         <span className="flex flex-row gap-1 place-self-center text-left grow">
           <a
             draggable
-            href={`http://${location.hostname}/api/file/download/${file.id}`}
+            href={`${location.protocol}//${location.hostname}/api/file/download/${file.id}`}
             onDragStart={(e) => {
               e.dataTransfer.setData("files", JSON.stringify([file.id]));
             }}
