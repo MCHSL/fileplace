@@ -273,12 +273,12 @@ def download(request: HttpRequest, file_id) -> HttpResponse:
     response = HttpResponse()
     response["X-Accel-Redirect"] = f"/protected/{file.file_ref.name}"
     response["Content-Disposition"] = "attachment; filename=%s" % file.name
+    response["Content-Length"] = file.size
     return response
 
 
 @require_safe
 def download_opengraph(request: HttpRequest, file_id) -> HttpResponse:
-    print("download_opengraph")
     file = get_object_or_404(File, pk=file_id)
 
     if file.private and file.user != request.user:
@@ -291,7 +291,7 @@ def download_opengraph(request: HttpRequest, file_id) -> HttpResponse:
                 <meta charset="utf-8">
                 <meta property="og:title" content="{file.name}">
                 <meta property="og:url" content="{settings.DOMAIN}/download/{file.pk}">
-                <meta property="og:site_name" content="{settings.DOMAIN}">
+                <meta property="og:site_name" content="{settings.DOMAIN.split("/")[2]}">
                 <meta property="og:type" content="website">
                 <meta property="og:locale" content="en_US">
             </head>
