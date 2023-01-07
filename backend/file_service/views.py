@@ -137,13 +137,17 @@ def oauth_login(request: HttpRequest, provider: str) -> HttpResponse:
 
 
 @require_POST
+@login_required
 def set_username(request: HttpRequest) -> HttpResponse:
+    if request.user.username is not None:  # type: ignore
+        return HttpResponse("Username already set", status=400)
     data = json.loads(request.body)
     username: str = data["username"]
     if User.objects.filter(username=username).exists():
         return HttpResponse("Username already exists", status=400)
     request.user.username = username  # type: ignore
     request.user.save()
+    cache.delete(f"user:{request.user.pk}")
     return HttpResponse("OK")
 
 
