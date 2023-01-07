@@ -1,4 +1,8 @@
-import { faLock, faUnlockAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+  faLock,
+  faUnlockAlt,
+  faShareSquare,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import client from "../../../client";
@@ -8,6 +12,7 @@ import useUser from "../../../context/UserContext";
 const DirectoryPath = () => {
   const { currentDirectory, setCurrentDirectoryId, directoryRefetch } =
     useDirectory();
+  const [showCopy, setShowCopy] = React.useState(false);
   const { user } = useUser();
 
   const togglePrivate = () => {
@@ -19,6 +24,14 @@ const DirectoryPath = () => {
       .then(directoryRefetch);
   };
 
+  const copyLink = () => {
+    navigator.clipboard.writeText(`${window.location}`);
+    setShowCopy(true);
+    setTimeout(() => {
+      setShowCopy(false);
+    }, 2000);
+  };
+
   if (!currentDirectory) {
     return null;
   }
@@ -26,18 +39,18 @@ const DirectoryPath = () => {
   const path = currentDirectory?.path || [];
 
   const pathElements = path.map((dir) => (
-    <span key={dir.id} className="flex gap-1">
+    <span key={dir.id} className="flex">
       {dir.id == currentDirectory?.id ? (
-        <span className="cursor-default">{dir.name}</span>
+        <span className="cursor-default mx-1">{dir.name}</span>
       ) : (
         <span
-          className="cursor-pointer underline text-blue-500"
+          className="cursor-pointer underline text-blue-500 mx-1"
           onClick={() => setCurrentDirectoryId(dir.id)}
         >
           {dir.name}
         </span>
       )}
-      <span className="text-gray-500">{">"}</span>
+      <span className="cursor-default text-gray-500">{">"}</span>
     </span>
   ));
 
@@ -45,23 +58,44 @@ const DirectoryPath = () => {
     user?.id != currentDirectory?.user.id ? (
       <></>
     ) : (
-      <span className="p-1 flex hover:cursor-pointer" onClick={togglePrivate}>
+      <span className="flex relative">
         {currentDirectory?.private ? (
-          <FontAwesomeIcon icon={faLock} fixedWidth className="text-red-500" />
-        ) : (
           <FontAwesomeIcon
-            icon={faUnlockAlt}
+            icon={faLock}
             fixedWidth
-            className="text-green-500"
+            className="text-red-500 hover:cursor-pointer text-lg"
+            onClick={togglePrivate}
           />
+        ) : (
+          <>
+            <FontAwesomeIcon
+              icon={faUnlockAlt}
+              fixedWidth
+              className="text-green-500 hover:cursor-pointer text-lg mr-1"
+              onClick={togglePrivate}
+            />
+            <FontAwesomeIcon
+              icon={faShareSquare}
+              fixedWidth
+              className="text-blue-500 hover:cursor-pointer text-lg ml-1"
+              onClick={copyLink}
+            />
+            {showCopy && (
+              <span className="text-green-500 absolute top-5 font-bold">
+                Copied!
+              </span>
+            )}
+          </>
         )}
       </span>
     );
 
   return (
     <div className="text-left flex gap-1">
-      {padlock}
-      {pathElements}
+      <span className="flex flex-row justify-center items-center">
+        {padlock}
+        <span className="ml-2 flex flex-row gap-0">{pathElements}</span>
+      </span>
     </div>
   );
 };

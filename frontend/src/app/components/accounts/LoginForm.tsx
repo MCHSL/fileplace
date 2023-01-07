@@ -160,12 +160,18 @@ const LoginForm = () => {
           </form>
         )}
       />
-      <div className="flex min-w-min">
+      <div className="flex flex-col gap-1">
         <button
           onClick={() => googleLogin()}
-          className="shadow border rounded py-2 px-4 min-w-max before:content-[url('/assets/google-login.svg')]"
+          className="border border-slate-400 rounded py-2 px-4 before:content-[url('/assets/google-login.svg')]"
         >
           [image here] Sign in with Google
+        </button>
+        <button
+          onClick={() => navigate("/register")}
+          className="border border-slate-400 rounded py-2 px-4"
+        >
+          Register
         </button>
       </div>
     </div>

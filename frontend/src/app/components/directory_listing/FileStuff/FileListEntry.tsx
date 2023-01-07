@@ -3,6 +3,7 @@ import {
   faPenSquare,
   faLock,
   faUnlockAlt,
+  faShareSquare,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect } from "react";
@@ -28,6 +29,7 @@ const FileListEntry = ({
   const { user } = useUser();
   const [renaming, setRenaming] = React.useState(false);
   const { renameFile } = useDirectory();
+  const [showCopy, setShowCopy] = React.useState(false);
 
   const deleteFile = async () => {
     const ok = window.confirm(
@@ -54,6 +56,16 @@ const FileListEntry = ({
     client
       .post("/file/set_private", { file: file.id, private: !file.private })
       .then(refetch);
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(
+      `${window.location.origin}/download/${file.id}`
+    );
+    setShowCopy(true);
+    setTimeout(() => {
+      setShowCopy(false);
+    }, 2000);
   };
 
   let checkClassName =
@@ -101,6 +113,11 @@ const FileListEntry = ({
           data-owned={user?.id == file.user.id}
           className="flex gap-1 align-middle data-[owned=false]:hidden"
         >
+          {showCopy && (
+            <span className="place-self-center text-green-500 font-bold">
+              Copied!
+            </span>
+          )}
           <span
             className="place-self-center sm:hidden text-blue-500 group-hover:flex hover:cursor-pointer"
             onClick={() => setRenaming(true)}
@@ -113,6 +130,14 @@ const FileListEntry = ({
           >
             <FontAwesomeIcon icon={faTrash} fixedWidth />
           </span>
+          {!file.private && (
+            <span
+              className="place-self-center sm:hidden text-blue-500 group-hover:flex hover:cursor-pointer"
+              onClick={copyLink}
+            >
+              <FontAwesomeIcon icon={faShareSquare} fixedWidth />
+            </span>
+          )}
           <span
             className="place-self-center sm:hidden text-blue-500 group-hover:flex hover:cursor-pointer"
             onClick={doSetPrivate}

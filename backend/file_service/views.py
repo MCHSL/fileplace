@@ -276,6 +276,49 @@ def download(request: HttpRequest, file_id) -> HttpResponse:
     return response
 
 
+@require_safe
+def download_opengraph(request: HttpRequest, file_id) -> HttpResponse:
+    print("download_opengraph")
+    file = get_object_or_404(File, pk=file_id)
+
+    if file.private and file.user != request.user:
+        raise Http404()
+
+    return HttpResponse(
+        f"""
+        <html lang="en">
+            <head>
+                <meta charset="utf-8">
+                <meta property="og:title" content="{file.name}">
+                <meta property="og:url" content="{settings.DOMAIN}/download/{file.pk}">
+                <meta property="og:site_name" content="{settings.DOMAIN}">
+                <meta property="og:type" content="website">
+                <meta property="og:locale" content="en_US">
+            </head>
+        </html>
+        """,
+        content_type="text/html",
+    )
+
+
+@require_safe
+def general_opengraph(request: HttpRequest) -> HttpResponse:
+    return HttpResponse(
+        f"""
+        <html lang="en">
+            <head>
+                <meta charset="utf-8">
+                <meta property="og:url" content="{settings.DOMAIN}">
+                <meta property="og:site_name" content="{settings.DOMAIN}">
+                <meta property="og:type" content="website">
+                <meta property="og:locale" content="en_US">
+            </head>
+        </html>
+        """,
+        content_type="text/html",
+    )
+
+
 @login_required
 @require_POST
 def delete_files(request: HttpRequest) -> HttpResponse:
@@ -454,7 +497,8 @@ def set_directory_private(request: HttpRequest) -> HttpResponse:
     if directory.user != request.user:
         return HttpResponse("Unauthorized", status=401)
     directory.set_private(private)
-    cache.delete(f"children:{directory.parent.pk}")
+    if directory.parent:
+        cache.delete(f"children:{directory.parent.pk}")
     return HttpResponse("Directory set to private successfully")
 
 

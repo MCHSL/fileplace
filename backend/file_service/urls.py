@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import include, path, re_path
 
 from . import views
 
@@ -71,6 +71,22 @@ urlpatterns = (
                     path(
                         "set_private", views.set_file_private, name="set_file_private"
                     ),
+                ]
+            ),
+        )
+    ]
+    + [
+        path(
+            "og/",
+            include(
+                [
+                    path("", views.general_opengraph, name="general_opengraph"),
+                    path(
+                        "download/<int:file_id>",
+                        views.download_opengraph,
+                        name="download_opengraph",
+                    ),
+                    re_path(".*", views.general_opengraph, name="general_opengraph"),
                 ]
             ),
         )
