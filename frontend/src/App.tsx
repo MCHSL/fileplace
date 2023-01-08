@@ -11,6 +11,7 @@ import { UserProvider } from "./app/context/UserContext";
 import UserPage from "./app/pages/UserPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import SetName from "./app/components/accounts/SetName";
+import ReportsPage from "./app/pages/ReportsPage";
 
 configure({
   axios: client,
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: "/set_name",
         element: <SetName />,
+      },
+      {
+        path: "/reports",
+        element: <ReportsPage />,
       },
     ],
   },

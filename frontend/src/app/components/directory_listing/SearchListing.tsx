@@ -2,17 +2,21 @@ import React, { useEffect } from "react";
 import useSearch from "../../context/SearchContext";
 import FileList from "./FileStuff/FileList";
 import { useDebounce } from "use-debounce";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import DirectoryList from "./DirectoryStuff/DirectoryList";
 
 const SearchListing = () => {
   const username = useParams<{ username: string }>().username || "";
+  const [searchParams, setSearchParams] = useSearchParams();
   const { query, searchLoading, searchResults, doSearch } = useSearch();
-  const [searchTerm, setSearchTerm] = React.useState<string>(query || "");
+  const [searchTerm, setSearchTerm] = React.useState<string>(
+    searchParams?.get("search") || query || ""
+  );
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
   const navigate = useNavigate();
 
   useEffect(() => {
+    setSearchParams({ search: searchTerm }, { replace: true });
     doSearch(debouncedSearchTerm, username);
   }, [debouncedSearchTerm, username]);
 
@@ -25,7 +29,6 @@ const SearchListing = () => {
   };
 
   const doGoBack = () => {
-    console.log("hello?");
     navigate(`/user/${username}/`);
   };
 

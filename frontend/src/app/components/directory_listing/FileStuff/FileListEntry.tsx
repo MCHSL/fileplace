@@ -7,7 +7,7 @@ import {
   faWarning,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect } from "react";
+import React, { useEffect, useReducer } from "react";
 import client from "../../../client";
 import useDirectory, { UserFile } from "../../../context/DirectoryContext";
 import useUser from "../../../context/UserContext";
@@ -162,7 +162,7 @@ const FileListEntry = ({
             </span>
           )}
           <span
-            className="place-self-center sm:hidden text-blue-500 group-hover:flex hover:cursor-pointer"
+            className="place-self-center sm:hidden text-red-500 group-hover:flex hover:cursor-pointer"
             onClick={reportFile}
           >
             <FontAwesomeIcon icon={faWarning} fixedWidth />

@@ -6,16 +6,12 @@ import { User } from "../../context/UserContext";
 interface ReportProps {
   show: boolean;
   user: User;
-  file: UserFile;
+  file: UserFile | null;
   directory: BasicDirectory;
   close: () => void;
 }
 
 const ReportModal = ({ show, user, file, directory, close }: ReportProps) => {
-  if (!show) {
-    return null;
-  }
-
   const [reason, setReason] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
 
@@ -25,7 +21,7 @@ const ReportModal = ({ show, user, file, directory, close }: ReportProps) => {
       .post("/report/create", {
         reason,
         user: user?.id,
-        file: file?.id,
+        file: file?.id || null,
         directory: directory?.id,
       })
       .then(() => {
@@ -38,7 +34,8 @@ const ReportModal = ({ show, user, file, directory, close }: ReportProps) => {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-50 mx-auto w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-screen md:h-full backdrop-brightness-50"
+      data-show={!!show}
+      className="fixed top-0 left-0 right-0 z-50 mx-auto w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-screen md:h-full backdrop-brightness-50 data-[show=false]:hidden"
       //style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
     >
       <div className="relative top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 max-w-3xl max-h-3xl">
@@ -47,7 +44,7 @@ const ReportModal = ({ show, user, file, directory, close }: ReportProps) => {
             <span className="place-self-center">Report</span>
             <div className="flex flex-col mb-4">
               <span>{`User: ${user.username}`}</span>
-              <span>{`File: ${file.name}`}</span>
+              {file && <span>{`File: ${file.name}`}</span>}
               <span>{`Directory: ${directory.name}`}</span>
             </div>
             <div className="flex flex-col gap-1">
@@ -60,13 +57,21 @@ const ReportModal = ({ show, user, file, directory, close }: ReportProps) => {
               />
               <span className="text-right">{reason.length}/1000</span>
             </div>
-            <button
-              onClick={submit}
-              disabled={submitting}
-              className="border border-slate-500 max-w-max p-2 rounded place-self-center"
-            >
-              Submit
-            </button>
+            <div className="flex flex-row gap-3 justify-center">
+              <button
+                onClick={submit}
+                disabled={submitting}
+                className="border border-slate-500 max-w-max p-2 rounded place-self-center"
+              >
+                Submit
+              </button>
+              <button
+                onClick={close}
+                className="border border-slate-500 max-w-max p-2 rounded place-self-center"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       </div>

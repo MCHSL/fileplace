@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  Navigate,
   useLocation,
   useNavigate,
   useNavigationType,
@@ -27,21 +28,20 @@ const UserPage = () => {
   const [userLoading, setUserLoading] = useState(false);
   const [userError, setUserError] = useState(null);
 
-  const { setCurrentDirectoryId, directoryCancel } = useDirectory();
+  const { setCurrentDirectoryId } = useDirectory();
 
   useEffect(() => {
+    setUserLoading(true);
+    setUserError(null);
     client
       .get(`/user/get/${username}`)
       .then((res) => {
         setUserInfo(res.data);
+        setUserLoading(false);
       })
       .catch((err) => {
         setUserError(err);
       });
-
-    return () => {
-      directoryCancel();
-    };
   }, [username]);
 
   const findAndSetCurrentDirectory = () => {
@@ -89,9 +89,17 @@ const UserPage = () => {
           </h1>
         ) : null}
       </div>
-      <div className="flex flex-col gap-1">
-        <DirectoryListing />
-      </div>
+      {userError ? (
+        <div className="flex flex-col gap-1">
+          <span className="flex text-xl font-bold justify-center mt-10">
+            User {username} not found.
+          </span>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-1">
+          <DirectoryListing />
+        </div>
+      )}
     </div>
   );
 };

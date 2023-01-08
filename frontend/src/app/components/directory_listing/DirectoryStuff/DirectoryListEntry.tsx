@@ -3,6 +3,7 @@ import {
   faPenSquare,
   faLock,
   faUnlockAlt,
+  faWarning,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect } from "react";
@@ -18,6 +19,7 @@ import useDirectory, {
 } from "../../../context/DirectoryContext";
 import useUser from "../../../context/UserContext";
 import InlineInput from "../../misc/InlineInput";
+import ReportModal from "../../misc/ReportModal";
 
 interface DirectoryListEntryProps {
   directory: BasicDirectory;
@@ -28,6 +30,7 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
   const { setCurrentDirectoryId, directoryRefetch } = useDirectory();
   const [renaming, setRenaming] = React.useState(false);
   const [dragging, setDragging] = React.useState(false);
+  const [reporting, setReporting] = React.useState(false);
   const navigate = useNavigate();
   const { username } = useParams<{ username: string }>();
   const location = useLocation();
@@ -86,12 +89,23 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
     setCurrentDirectoryId(directory.id);
   };
 
+  const reportDirectory = () => {
+    setReporting(true);
+  };
+
   return (
     <div
       key={directory.id}
       className="flex flex-row justify-between align-middle gap-1 text-left hover:bg-slate-100 group data-[dragging=true]:bg-slate-100"
       data-dragging={dragging}
     >
+      <ReportModal
+        user={directory.user}
+        file={null}
+        directory={directory}
+        show={reporting}
+        close={() => setReporting(false)}
+      />
       {user?.id == directory.user.id && (
         <span className="place-self-center text-green-500 basis-5">
           {!directory.private && (
@@ -159,6 +173,12 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
               fixedWidth
             />
           </span>
+        </span>
+        <span
+          className="place-self-center sm:hidden text-red-500 group-hover:flex hover:cursor-pointer"
+          onClick={reportDirectory}
+        >
+          <FontAwesomeIcon icon={faWarning} fixedWidth />
         </span>
       </InlineInput>
     </div>
