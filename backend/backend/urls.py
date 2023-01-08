@@ -19,10 +19,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 import file_service.urls
-import file_service.views
+import file_service.views.files
 
 
 urlpatterns = [
     path("api/", include(file_service.urls)),
-    path("download/<int:file_id>", file_service.views.download, name="direct_download"),
+    path(
+        "download/<int:file_id>",
+        file_service.views.files.download,
+        name="direct_download",
+    ),
 ]

@@ -92,13 +92,13 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
       className="flex flex-row justify-between align-middle gap-1 text-left hover:bg-slate-100 group data-[dragging=true]:bg-slate-100"
       data-dragging={dragging}
     >
-      <span className="place-self-center text-green-500 basis-5">
-        {directory.private || user?.id != directory.user.id ? (
-          <></>
-        ) : (
-          <FontAwesomeIcon icon={faUnlockAlt} fixedWidth />
-        )}
-      </span>
+      {user?.id == directory.user.id && (
+        <span className="place-self-center text-green-500 basis-5">
+          {!directory.private && (
+            <FontAwesomeIcon icon={faUnlockAlt} fixedWidth />
+          )}
+        </span>
+      )}
       <InlineInput
         editing={renaming}
         setEditing={setRenaming}

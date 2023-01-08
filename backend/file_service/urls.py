@@ -1,6 +1,6 @@
 from django.urls import include, path, re_path
 
-from . import views
+from .views import reports, users, files, directories, opengraph, search
 
 urlpatterns = (
     [
@@ -8,28 +8,28 @@ urlpatterns = (
             "user/",
             include(
                 [
-                    path("", views.user, name="user"),
-                    path("login", views.do_login, name="login"),
-                    path("logout", views.do_logout, name="logout"),
-                    path("register", views.register, name="register"),
+                    path("", users.user, name="user"),
+                    path("login", users.do_login, name="login"),
+                    path("logout", users.do_logout, name="logout"),
+                    path("register", users.register, name="register"),
                     path(
                         "check_username/<str:username>",
-                        views.check_username,
+                        users.check_username,
                         name="check_username",
                     ),
                     path(
                         "get/<str:username>",
-                        views.get_user,
+                        users.get_user,
                         name="get_user",
                     ),
                     path(
                         "oauth/<str:provider>",
-                        views.oauth_login,
+                        users.oauth_login,
                         name="oauth",
                     ),
                     path(
                         "set_username",
-                        views.set_username,
+                        users.set_username,
                         name="set_username",
                     ),
                 ]
@@ -42,18 +42,26 @@ urlpatterns = (
             include(
                 [
                     path(
-                        "<int:directory_id>", views.get_directory, name="get_directory"
+                        "<int:directory_id>",
+                        directories.get_directory,
+                        name="get_directory",
                     ),
-                    path("create", views.create_directory, name="create_directory"),
-                    path("delete", views.delete_directory, name="delete_directory"),
-                    path("move", views.move_directory, name="move_directory"),
-                    path("rename", views.rename_directory, name="rename_directory"),
+                    path(
+                        "create", directories.create_directory, name="create_directory"
+                    ),
+                    path(
+                        "delete", directories.delete_directory, name="delete_directory"
+                    ),
+                    path("move", directories.move_directory, name="move_directory"),
+                    path(
+                        "rename", directories.rename_directory, name="rename_directory"
+                    ),
                     path(
                         "set_private",
-                        views.set_directory_private,
+                        directories.set_directory_private,
                         name="set_directory_private",
                     ),
-                    path("find", views.find_directory, name="find_directory"),
+                    path("find", directories.find_directory, name="find_directory"),
                 ]
             ),
         ),
@@ -63,13 +71,13 @@ urlpatterns = (
             "file/",
             include(
                 [
-                    path("upload", views.upload, name="upload"),
-                    path("download/<int:file_id>", views.download, name="download"),
-                    path("delete", views.delete_files, name="delete_files"),
-                    path("move", views.move_files, name="move_files"),
-                    path("rename", views.rename_file, name="rename_file"),
+                    path("upload", files.upload, name="upload"),
+                    path("download/<int:file_id>", files.download, name="download"),
+                    path("delete", files.delete_files, name="delete_files"),
+                    path("move", files.move_files, name="move_files"),
+                    path("rename", files.rename_file, name="rename_file"),
                     path(
-                        "set_private", views.set_file_private, name="set_file_private"
+                        "set_private", files.set_file_private, name="set_file_private"
                     ),
                 ]
             ),
@@ -80,18 +88,32 @@ urlpatterns = (
             "og/",
             include(
                 [
-                    path("", views.general_opengraph, name="general_opengraph"),
+                    path("", opengraph.general_opengraph, name="general_opengraph"),
                     path(
                         "download/<int:file_id>",
-                        views.download_opengraph,
+                        opengraph.download_opengraph,
                         name="download_opengraph",
                     ),
-                    re_path(".*", views.general_opengraph, name="general_opengraph"),
+                    re_path(
+                        ".*", opengraph.general_opengraph, name="general_opengraph"
+                    ),
                 ]
             ),
         )
     ]
     + [
-        path("search", views.search, name="search"),
+        path(
+            "report/",
+            include(
+                [
+                    path("", reports.get_reports, name="get_reports"),
+                    path("create", reports.create_report, name="create_report"),
+                    path("delete", reports.delete_report, name="delete_report"),
+                ]
+            ),
+        ),
+    ]
+    + [
+        path("search", search.search, name="search"),
     ]
 )

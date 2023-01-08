@@ -37,8 +37,6 @@ const DirectoryList = ({
     );
   }
 
-  console.log(directoryError);
-
   if (directoryError) {
     return <span className="flex text-lg">Directory not found.</span>;
   }

@@ -80,3 +80,18 @@ class File(models.Model):
     def __str__(self):
         directory = self.directory.get_path() if self.directory else "/"
         return f"{self.name} ({self.size} bytes) in {directory}, located at {self.get_file_url()}"
+
+
+class Report(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reports")
+    reported_user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name="reported_by", null=True
+    )
+    related_directory = models.ForeignKey(
+        Directory, on_delete=models.SET_NULL, related_name="reports", null=True
+    )
+    related_file = models.ForeignKey(
+        File, on_delete=models.SET_NULL, related_name="reports", null=True
+    )
+    message = models.TextField(max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)

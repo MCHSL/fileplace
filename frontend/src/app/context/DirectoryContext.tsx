@@ -9,6 +9,7 @@ export interface UserFile {
   id: number;
   name: string;
   private: boolean;
+  directory: BasicDirectory;
   user: User;
 }
 
