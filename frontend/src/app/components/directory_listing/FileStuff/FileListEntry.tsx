@@ -161,12 +161,14 @@ const FileListEntry = ({
               />
             </span>
           )}
-          <span
-            className="place-self-center sm:hidden text-red-500 group-hover:flex hover:cursor-pointer"
-            onClick={reportFile}
-          >
-            <FontAwesomeIcon icon={faWarning} fixedWidth />
-          </span>
+          {user && (
+            <span
+              className="place-self-center sm:hidden text-red-500 group-hover:flex hover:cursor-pointer"
+              onClick={reportFile}
+            >
+              <FontAwesomeIcon icon={faWarning} fixedWidth />
+            </span>
+          )}
           {user?.id == file.user.id && (
             <input
               type="checkbox"

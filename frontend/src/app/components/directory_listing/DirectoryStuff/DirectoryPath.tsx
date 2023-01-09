@@ -56,7 +56,19 @@ const DirectoryPath = () => {
 
   const padlock =
     user?.id != currentDirectory?.user.id ? (
-      <></>
+      <span className="flex relative">
+        <FontAwesomeIcon
+          icon={faShareSquare}
+          fixedWidth
+          className="text-blue-500 hover:cursor-pointer text-lg ml-1"
+          onClick={copyLink}
+        />
+        {showCopy && (
+          <span className="text-green-500 absolute top-5 font-bold">
+            Copied!
+          </span>
+        )}
+      </span>
     ) : (
       <span className="flex relative">
         {currentDirectory?.private ? (

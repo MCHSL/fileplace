@@ -5,6 +5,7 @@ export type User = {
   id: number;
   username: string;
   root_directory: number;
+  is_staff: boolean;
 };
 
 export interface UserContext {

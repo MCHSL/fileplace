@@ -6,13 +6,7 @@ import {
   faWarning,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect } from "react";
-import {
-  Navigate,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import React from "react";
 import client from "../../../client";
 import useDirectory, {
   BasicDirectory,
@@ -31,9 +25,6 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
   const [renaming, setRenaming] = React.useState(false);
   const [dragging, setDragging] = React.useState(false);
   const [reporting, setReporting] = React.useState(false);
-  const navigate = useNavigate();
-  const { username } = useParams<{ username: string }>();
-  const location = useLocation();
 
   const deleteDirectory = () => {
     const ok = window.confirm(
@@ -85,7 +76,6 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
   };
 
   const doGoToDirectory = () => {
-    //navigate(location.pathname + "/" + directory.name);
     setCurrentDirectoryId(directory.id);
   };
 
@@ -174,12 +164,14 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
             />
           </span>
         </span>
-        <span
-          className="place-self-center sm:hidden text-red-500 group-hover:flex hover:cursor-pointer"
-          onClick={reportDirectory}
-        >
-          <FontAwesomeIcon icon={faWarning} fixedWidth />
-        </span>
+        {user && (
+          <span
+            className="place-self-center sm:hidden text-red-500 group-hover:flex hover:cursor-pointer"
+            onClick={reportDirectory}
+          >
+            <FontAwesomeIcon icon={faWarning} fixedWidth />
+          </span>
+        )}
       </InlineInput>
     </div>
   );
