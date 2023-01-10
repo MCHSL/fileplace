@@ -12,6 +12,10 @@ import UserPage from "./app/pages/UserPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import SetName from "./app/components/accounts/SetName";
 import ReportsPage from "./app/pages/ReportsPage";
+import AccountPage from "./app/pages/AccountPage";
+import PasswordChangePage from "./app/pages/PasswordChangePage";
+import ForgotPasswordPage from "./app/pages/ForgotPasswordPage";
+import VerifyPage from "./app/pages/VerifyPage";
 
 configure({
   axios: client,
@@ -61,6 +65,18 @@ const router = createBrowserRouter([
         path: "/reports",
         element: <ReportsPage />,
       },
+      { path: "/account", element: <AccountPage /> },
+      { path: "/account/forgot_password", element: <ForgotPasswordPage /> },
+      { path: "/account/change_password", element: <PasswordChangePage /> },
+      {
+        path: "/account/reset_password/:token",
+        element: <PasswordChangePage />,
+      },
+      {
+        path: "/account/verify_email/:token",
+        element: <VerifyPage />,
+      },
+      { path: "/*", element: <LoginForm /> },
     ],
   },
 ]);

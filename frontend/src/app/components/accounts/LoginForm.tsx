@@ -37,11 +37,7 @@ const LoginForm = () => {
         if (!e.response) {
           setError("Something went wrong. Please try again later.");
         } else {
-          if (e.response.status === 401) {
-            setError("Invalid username or password.");
-          } else {
-            setError("Something went wrong. Please try again later.");
-          }
+          setError(e.response.data);
         }
       })
       .finally(() => setLoading(false));
@@ -149,14 +145,23 @@ const LoginForm = () => {
               </Field>
             </div>
 
-            <button
-              type="submit"
-              onClick={handleSubmit}
-              disabled={loading}
-              className="shadow border rounded py-2 px-4 min-w-max"
-            >
-              {loading ? <ScaleLoader color="#000000" loading /> : "Submit"}
-            </button>
+            <div className="flex flex-col gap-1">
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="shadow border rounded py-2 px-4 mx-auto"
+              >
+                {loading ? <ScaleLoader color="#000000" loading /> : "Submit"}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/account/forgot_password")}
+                className="text-blue-500 hover:text-blue-700"
+              >
+                Forgot password?
+              </button>
+            </div>
           </form>
         )}
       />

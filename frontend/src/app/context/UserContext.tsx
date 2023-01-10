@@ -4,6 +4,7 @@ import client from "../client";
 export type User = {
   id: number;
   username: string;
+  email: string;
   root_directory: number;
   is_staff: boolean;
 };

@@ -51,6 +51,14 @@ const LoggedInAs = () => {
             Home
           </button>
           <button
+            onClick={() => navigate("/account")}
+            className="
+		  bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-1
+		"
+          >
+            Account settings
+          </button>
+          <button
             onClick={doLogout}
             className="
 		  bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-1

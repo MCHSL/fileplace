@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import client from "../../client";
 import { UserFile, BasicDirectory } from "../../context/DirectoryContext";
 import { User } from "../../context/UserContext";
@@ -14,6 +14,7 @@ interface ReportProps {
 const ReportModal = ({ show, user, file, directory, close }: ReportProps) => {
   const [reason, setReason] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
+  const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const submit = () => {
     setSubmitting(true);
@@ -32,11 +33,16 @@ const ReportModal = ({ show, user, file, directory, close }: ReportProps) => {
       });
   };
 
+  useEffect(() => {
+    if (show && textAreaRef.current) {
+      textAreaRef.current.focus();
+    }
+  }, [show]);
+
   return (
     <div
       data-show={!!show}
       className="fixed top-0 left-0 right-0 z-50 mx-auto w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-screen md:h-full backdrop-brightness-50 data-[show=false]:hidden"
-      //style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
     >
       <div className="relative top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 max-w-3xl max-h-3xl">
         <div className="bg-white rounded-lg shadow p-8">
@@ -54,6 +60,8 @@ const ReportModal = ({ show, user, file, directory, close }: ReportProps) => {
                 className="border border-slate-500 p-2 rounded focus:border-slate-500"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
+                autoFocus={true}
+                ref={textAreaRef}
               />
               <span className="text-right">{reason.length}/1000</span>
             </div>

@@ -53,9 +53,11 @@ const DirectoryListing = () => {
         <button
           onClick={() =>
             navigate(
-              `/search/${currentDirectory?.user.username}?search=${filter}`,
+              `/search/${currentDirectory.user.username}?search=${
+                filter || ""
+              }`,
               {
-                state: { leaving: true, from: currentDirectory?.id },
+                state: { leaving: true, from: currentDirectory.id },
               }
             )
           }

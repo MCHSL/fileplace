@@ -8,6 +8,7 @@ const RegistrationForm = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>();
   const [loading, setLoading] = useState<boolean>();
+  const [success, setSuccess] = useState<boolean>();
 
   const onSubmit = (values: any) => {
     console.log("hewwo?");
@@ -15,11 +16,11 @@ const RegistrationForm = () => {
     setLoading(true);
     client
       .post("/user/register", values)
-      .then(() => navigate("/login"))
+      .then(() => setSuccess(true))
       .catch((res) => {
-        setLoading(false);
         setError(res.response.data);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   const onValidate = async (values: any) => {
@@ -92,134 +93,147 @@ const RegistrationForm = () => {
                 <span className="absolute top-0 bottom-0 right-0 px-4 py-3"></span>
               </div>
             )}
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                htmlFor="username"
+            {success ? (
+              <div
+                className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
+                role="alert"
               >
-                Username
-              </label>
-              <Field name="username">
-                {({ input, meta }) => (
-                  <div className="flex flex-col">
-                    <input
-                      {...input}
-                      type="text"
-                      placeholder="Username"
-                      className={`shadow transition-colors duration-300 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
-                        meta.error && meta.touched
-                          ? "border-red-500 shadow-red-500"
-                          : ""
-                      }`}
-                    />
-                    {meta.error && meta.touched && (
-                      <span className="text-left px-1 text-red-500">
-                        {meta.error}
-                      </span>
+                <span className="block sm:inline">
+                  Success! Please check your email to verify your account.
+                </span>
+              </div>
+            ) : (
+              <>
+                <div className="mb-4">
+                  <label
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                    htmlFor="username"
+                  >
+                    Username
+                  </label>
+                  <Field name="username">
+                    {({ input, meta }) => (
+                      <div className="flex flex-col">
+                        <input
+                          {...input}
+                          type="text"
+                          placeholder="Username"
+                          className={`shadow transition-colors duration-300 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+                            meta.error && meta.touched
+                              ? "border-red-500 shadow-red-500"
+                              : ""
+                          }`}
+                        />
+                        {meta.error && meta.touched && (
+                          <span className="text-left px-1 text-red-500">
+                            {meta.error}
+                          </span>
+                        )}
+                      </div>
                     )}
-                  </div>
-                )}
-              </Field>
-            </div>
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                htmlFor="email"
-              >
-                Email
-              </label>
-              <Field name="email">
-                {({ input, meta }) => (
-                  <div className="flex flex-col">
-                    <input
-                      {...input}
-                      type="text"
-                      placeholder="Email"
-                      className={`shadow transition-colors duration-300 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
-                        meta.error && meta.touched
-                          ? "border-red-500 shadow-red-500"
-                          : ""
-                      }`}
-                    />
-                    {meta.error && meta.touched && (
-                      <span className="text-left px-1 text-red-500">
-                        {meta.error}
-                      </span>
+                  </Field>
+                </div>
+                <div className="mb-4">
+                  <label
+                    className="block text-gray-700 text-sm font-bold mb-2"
+                    htmlFor="email"
+                  >
+                    Email
+                  </label>
+                  <Field name="email">
+                    {({ input, meta }) => (
+                      <div className="flex flex-col">
+                        <input
+                          {...input}
+                          type="text"
+                          placeholder="Email"
+                          className={`shadow transition-colors duration-300 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+                            meta.error && meta.touched
+                              ? "border-red-500 shadow-red-500"
+                              : ""
+                          }`}
+                        />
+                        {meta.error && meta.touched && (
+                          <span className="text-left px-1 text-red-500">
+                            {meta.error}
+                          </span>
+                        )}
+                      </div>
                     )}
-                  </div>
-                )}
-              </Field>
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Password
-              </label>
-              <Field name="password">
-                {({ input, meta }) => (
-                  <div className="flex flex-col">
-                    <input
-                      {...input}
-                      type="password"
-                      placeholder="Password"
-                      className={`shadow transition-colors duration-300 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
-                        meta.error?.message && meta.touched
-                          ? "border-red-500 shadow-red-500"
-                          : ""
-                      }`}
-                    />
-                    {meta.error?.message !== null && meta.touched && (
-                      <span className="text-left px-1 text-red-500">
-                        {meta.error?.message}
-                      </span>
+                  </Field>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">
+                    Password
+                  </label>
+                  <Field name="password">
+                    {({ input, meta }) => (
+                      <div className="flex flex-col">
+                        <input
+                          {...input}
+                          type="password"
+                          placeholder="Password"
+                          className={`shadow transition-colors duration-300 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+                            meta.error?.message && meta.touched
+                              ? "border-red-500 shadow-red-500"
+                              : ""
+                          }`}
+                        />
+                        {meta.error?.message !== null && meta.touched && (
+                          <span className="text-left px-1 text-red-500">
+                            {meta.error?.message}
+                          </span>
+                        )}
+                        <div>
+                          <span>Password must:</span>
+                          <ul className="list-none text-left text-sm subpixel-antialiased">
+                            <li
+                              data-error={meta.error?.validation["length"]}
+                              className="data-[error=true]:text-red-500 data-[error=false]:text-green-500"
+                            >
+                              Be at least 10 characters long
+                            </li>
+                            <li
+                              data-error={meta.error?.validation["uppercase"]}
+                              className="data-[error=true]:text-red-500 data-[error=false]:text-green-500"
+                            >
+                              Contain at least one uppercase letter
+                            </li>
+                            <li
+                              data-error={meta.error?.validation["lowercase"]}
+                              className="data-[error=true]:text-red-500 data-[error=false]:text-green-500"
+                            >
+                              Contain at least one lowercase letter
+                            </li>
+                            <li
+                              data-error={meta.error?.validation["number"]}
+                              className="data-[error=true]:text-red-500 data-[error=false]:text-green-500"
+                            >
+                              Contain at least one number
+                            </li>
+                            <li
+                              data-error={meta.error?.validation["special"]}
+                              className="data-[error=true]:text-red-500 data-[error=false]:text-green-500"
+                            >
+                              Contain at least one special character
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
                     )}
-                    <div>
-                      <span>Password must:</span>
-                      <ul className="list-none text-left text-sm subpixel-antialiased">
-                        <li
-                          data-error={meta.error?.validation["length"]}
-                          className="data-[error=true]:text-red-500 data-[error=false]:text-green-500"
-                        >
-                          Be at least 10 characters long
-                        </li>
-                        <li
-                          data-error={meta.error?.validation["uppercase"]}
-                          className="data-[error=true]:text-red-500 data-[error=false]:text-green-500"
-                        >
-                          Contain at least one uppercase letter
-                        </li>
-                        <li
-                          data-error={meta.error?.validation["lowercase"]}
-                          className="data-[error=true]:text-red-500 data-[error=false]:text-green-500"
-                        >
-                          Contain at least one lowercase letter
-                        </li>
-                        <li
-                          data-error={meta.error?.validation["number"]}
-                          className="data-[error=true]:text-red-500 data-[error=false]:text-green-500"
-                        >
-                          Contain at least one number
-                        </li>
-                        <li
-                          data-error={meta.error?.validation["special"]}
-                          className="data-[error=true]:text-red-500 data-[error=false]:text-green-500"
-                        >
-                          Contain at least one special character
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                )}
-              </Field>
-            </div>
+                  </Field>
+                </div>
 
-            <button
-              type="submit"
-              onClick={handleSubmit}
-              disabled={loading}
-              className="shadow border rounded py-2 px-4 min-w-max"
-            >
-              {loading ? <ScaleLoader color="#000000" loading /> : "Submit"}
-            </button>
+                <button
+                  type="submit"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="shadow border rounded py-2 px-4 min-w-max"
+                >
+                  {loading ? <ScaleLoader color="#000000" loading /> : "Submit"}
+                </button>
+              </>
+            )}
             <div className="text-red-500">{error}</div>
           </form>
         )}

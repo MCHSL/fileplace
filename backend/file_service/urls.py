@@ -32,6 +32,26 @@ urlpatterns = (
                         users.set_username,
                         name="set_username",
                     ),
+                    path(
+                        "change_password",
+                        users.change_password,
+                        name="change_password",
+                    ),
+                    path(
+                        "request_password_reset",
+                        users.request_password_reset,
+                        name="request_password_reset",
+                    ),
+                    path(
+                        "reset_password",
+                        users.reset_password,
+                        name="reset_password",
+                    ),
+                    path(
+                        "verify_email",
+                        users.verify_email,
+                        name="verify_email",
+                    ),
                 ]
             ),
         )

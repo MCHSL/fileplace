@@ -3,7 +3,6 @@ import hashlib
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
-from django.core.cache import cache
 
 
 class User(AbstractUser):
@@ -13,6 +12,7 @@ class User(AbstractUser):
 
     oauth_provider = models.TextField(null=True)
     username = models.TextField(unique=True, null=True)
+    verification_token = models.TextField(null=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:

@@ -94,7 +94,7 @@ const ReportsPage = () => {
               <span className="flex flex-row gap-1">
                 <span>Directory:</span>
                 <span
-                  className="cursor-pointer"
+                  className="cursor-pointer text-blue-500 underline"
                   onClick={() => {
                     if (report.related_directory) {
                       const path = report.related_directory.path
@@ -113,7 +113,7 @@ const ReportsPage = () => {
               {report.related_file && (
                 <span className="flex flex-row gap-1">
                   <span>File:</span>
-                  <span>
+                  <span className="text-blue-500 underline">
                     <a
                       href={`${location.protocol}//${location.hostname}/api/file/download/${report.related_file.id}`}
                     >
