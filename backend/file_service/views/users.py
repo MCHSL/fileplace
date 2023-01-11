@@ -187,17 +187,17 @@ def register(request: HttpRequest) -> HttpResponse:
 
         text_message = (
             f"If it was you and you forgot your password, follow this link to reset it: "
-            f"\n{settings.DOMAIN}/account/reset_password/{token.token}"
+            f"\n{settings.SITE_URL}/account/reset_password/{token.token}"
             "\nIf you'd like to log in, follow this link: "
-            f"\n{settings.DOMAIN}/account/login"
+            f"\n{settings.SITE_URL}/account/login"
             "\nIf you didn't try to register an account, ignore this email."
         )
 
         html_message = (
             f"If it was you and you forgot your password, follow this link to reset it: "
-            f'<a href="{settings.DOMAIN}/account/reset_password/{token.token}">Reset password</a>'
+            f'<a href="{settings.SITE_URL}/account/reset_password/{token.token}">Reset password</a>'
             "<br>If you'd like to log in, follow this link: "
-            f'<a href="{settings.DOMAIN}/account/login">Log in</a>'
+            f'<a href="{settings.SITE_URL}/account/login">Log in</a>'
             "<br>If you didn't try to register an account, ignore this email."
         )
 
@@ -222,14 +222,14 @@ def register(request: HttpRequest) -> HttpResponse:
         text_message = (
             f"Welcome to {settings.SITE_NAME}! "
             f"Follow this link to verify your email address: "
-            f"\n{settings.DOMAIN}/account/verify_email/{user.verification_token}"
+            f"\n{settings.SITE_URL}/account/verify_email/{user.verification_token}"
             "\nIf you didn't try to register an account, ignore this email."
         )
 
         html_message = (
             f"Welcome to {settings.SITE_NAME}! "
             f"Follow this link to verify your email address: "
-            f'<a href="{settings.DOMAIN}/account/verify_email/{user.verification_token}">Verify email</a>'
+            f'<a href="{settings.SITE_URL}/account/verify_email/{user.verification_token}">Verify email</a>'
             "<br>If you didn't try to register an account, ignore this email."
         )
 
@@ -298,12 +298,12 @@ def request_password_reset(request: HttpRequest) -> HttpResponse:
 
     message = EmailMultiAlternatives(
         "Password reset",
-        f"Follow this link to reset your password:\n{settings.DOMAIN}/account/reset_password/{token.token}",
+        f"Follow this link to reset your password:\n{settings.SITE_URL}/account/reset_password/{token.token}",
         settings.DEFAULT_FROM_EMAIL,
         [email],
     )
     message.attach_alternative(
-        f'Follow this link to reset your password: <a href="{settings.DOMAIN}/account/reset_password/{token.token}">Reset password</a>',
+        f'Follow this link to reset your password: <a href="{settings.SITE_URL}/account/reset_password/{token.token}">Reset password</a>',
         "text/html",
     )
     message.send()

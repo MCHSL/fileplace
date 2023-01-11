@@ -60,7 +60,9 @@ const DirectoryList = ({
         ) : (
           <span className="italic text-slate-500">No directories</span>
         )}
-        {user?.id == currentDirectory?.user.id && <NewDirectoryListEntry />}
+        {user && user.id == currentDirectory?.user.id && (
+          <NewDirectoryListEntry />
+        )}
       </div>
     </div>
   );
