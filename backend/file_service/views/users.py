@@ -23,6 +23,15 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email", "is_staff", "root_directory"]
 
     root_directory = serializers.PrimaryKeyRelatedField(read_only=True)
+    email = serializers.SerializerMethodField()
+
+    def get_email(self, user: User) -> Optional[str]:
+        if (
+            self.context["request"].user == user
+            or self.context["request"].user.is_staff
+        ):
+            return user.email
+        return None
 
 
 class PasswordResetToken:
@@ -47,10 +56,12 @@ class PasswordResetToken:
 
 @login_required
 def user(request: HttpRequest) -> JsonResponse:
-    data = cache.get_or_set(
-        f"user:{request.user.pk}", lambda: UserSerializer(request.user).data
+    return JsonResponse(
+        UserSerializer(
+            request.user,
+            context={"request": request},
+        ).data
     )
-    return JsonResponse(data)
 
 
 @csrf_exempt
@@ -335,14 +346,10 @@ def check_username(request: HttpRequest, username: str) -> JsonResponse:
 
 @require_safe
 def get_user(request: HttpRequest, username: str) -> JsonResponse:
-    cached = cache.get(f"user:username:{username}")
-    if cached:
-        return JsonResponse(cached)
-
     user = get_object_or_404(User, username=username)
-    serialized = UserSerializer(user).data
-    if not request.user.is_staff:  # type: ignore
-        serialized["email"] = "<redacted>"
+    serialized = UserSerializer(
+        user,
+        context={"request": request},
+    ).data
 
-    cache.set(f"user:username:{username}", serialized)
     return JsonResponse(serialized)

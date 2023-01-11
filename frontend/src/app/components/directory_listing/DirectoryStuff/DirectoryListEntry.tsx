@@ -4,8 +4,10 @@ import {
   faLock,
   faUnlockAlt,
   faWarning,
+  faGlobe,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Tooltip from "@mui/material/Tooltip";
 import React from "react";
 import client from "../../../client";
 import useDirectory, {
@@ -86,7 +88,7 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
   return (
     <div
       key={directory.id}
-      className="flex flex-row justify-between align-middle gap-1 text-left hover:bg-slate-100 group data-[dragging=true]:bg-slate-100"
+      className="flex flex-row justify-between align-middle gap-1 px-1 text-left hover:bg-slate-100 group data-[dragging=true]:bg-slate-100"
       data-dragging={dragging}
     >
       <ReportModal
@@ -97,9 +99,15 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
         close={() => setReporting(false)}
       />
       {user?.id == directory.user.id && (
-        <span className="place-self-center text-green-500 basis-5">
+        <span className="place-self-center text-blue-500 basis-5">
           {!directory.private && (
-            <FontAwesomeIcon icon={faUnlockAlt} fixedWidth />
+            <Tooltip
+              title="This directory is public. Anyone can browse it."
+              arrow
+              classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+            >
+              <FontAwesomeIcon icon={faGlobe} fixedWidth />
+            </Tooltip>
           )}
         </span>
       )}
@@ -146,22 +154,37 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
             className="place-self-center hidden group-hover:block text-blue-500 hover:cursor-pointer"
             onClick={() => setRenaming(true)}
           >
-            <FontAwesomeIcon icon={faPenSquare} fixedWidth />
+            <Tooltip
+              title="Rename"
+              classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+            >
+              <FontAwesomeIcon icon={faPenSquare} fixedWidth />
+            </Tooltip>
           </span>
           <span
             className="place-self-center hidden group-hover:block text-red-500 hover:cursor-pointer"
             onClick={deleteDirectory}
           >
-            <FontAwesomeIcon icon={faTrash} fixedWidth />
+            <Tooltip
+              title="Delete"
+              classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+            >
+              <FontAwesomeIcon icon={faTrash} fixedWidth />
+            </Tooltip>
           </span>
           <span
             className="place-self-center sm:hidden text-blue-500 group-hover:flex hover:cursor-pointer"
             onClick={doSetPrivate}
           >
-            <FontAwesomeIcon
-              icon={directory.private ? faUnlockAlt : faLock}
-              fixedWidth
-            />
+            <Tooltip
+              title={directory.private ? "Make public" : "Make private"}
+              classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+            >
+              <FontAwesomeIcon
+                icon={directory.private ? faGlobe : faLock}
+                fixedWidth
+              />
+            </Tooltip>
           </span>
         </span>
         {user && (
@@ -169,7 +192,12 @@ const DirectoryListEntry = ({ directory }: DirectoryListEntryProps) => {
             className="place-self-center sm:hidden text-red-500 group-hover:flex hover:cursor-pointer"
             onClick={reportDirectory}
           >
-            <FontAwesomeIcon icon={faWarning} fixedWidth />
+            <Tooltip
+              title="Report"
+              classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+            >
+              <FontAwesomeIcon icon={faWarning} fixedWidth />
+            </Tooltip>
           </span>
         )}
       </InlineInput>

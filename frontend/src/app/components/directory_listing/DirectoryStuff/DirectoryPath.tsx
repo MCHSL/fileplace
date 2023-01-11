@@ -2,8 +2,10 @@ import {
   faLock,
   faUnlockAlt,
   faShareSquare,
+  faGlobe,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Tooltip from "@mui/material/Tooltip";
 import React from "react";
 import client from "../../../client";
 import useDirectory from "../../../context/DirectoryContext";
@@ -57,12 +59,17 @@ const DirectoryPath = () => {
   const padlock =
     user?.id != currentDirectory?.user.id ? (
       <span className="flex relative">
-        <FontAwesomeIcon
-          icon={faShareSquare}
-          fixedWidth
-          className="text-blue-500 hover:cursor-pointer text-lg ml-1"
-          onClick={copyLink}
-        />
+        <Tooltip
+          title="Copy Link"
+          classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+        >
+          <FontAwesomeIcon
+            icon={faShareSquare}
+            fixedWidth
+            className="text-blue-500 hover:cursor-pointer text-lg ml-1"
+            onClick={copyLink}
+          />
+        </Tooltip>
         {showCopy && (
           <span className="text-green-500 absolute top-5 font-bold">
             Copied!
@@ -72,26 +79,43 @@ const DirectoryPath = () => {
     ) : (
       <span className="flex relative">
         {currentDirectory?.private ? (
-          <FontAwesomeIcon
-            icon={faLock}
-            fixedWidth
-            className="text-red-500 hover:cursor-pointer text-lg"
-            onClick={togglePrivate}
-          />
-        ) : (
-          <>
+          <Tooltip
+            title="This directory is private. Click to make public."
+            arrow
+            classes={{ tooltip: "!text-sm !bg-gray-700" }}
+          >
             <FontAwesomeIcon
-              icon={faUnlockAlt}
+              icon={faLock}
               fixedWidth
-              className="text-green-500 hover:cursor-pointer text-lg mr-1"
+              className="text-red-500 hover:cursor-pointer text-lg"
               onClick={togglePrivate}
             />
-            <FontAwesomeIcon
-              icon={faShareSquare}
-              fixedWidth
-              className="text-blue-500 hover:cursor-pointer text-lg ml-1"
-              onClick={copyLink}
-            />
+          </Tooltip>
+        ) : (
+          <>
+            <Tooltip
+              title="This directory is public. Anyone can view it. Click to make private."
+              classes={{ tooltip: "!text-sm !bg-gray-700" }}
+            >
+              <FontAwesomeIcon
+                icon={faGlobe}
+                fixedWidth
+                className="text-blue-500 hover:cursor-pointer text-lg mr-1"
+                onClick={togglePrivate}
+              />
+            </Tooltip>
+
+            <Tooltip
+              title="Copy Link"
+              classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+            >
+              <FontAwesomeIcon
+                icon={faShareSquare}
+                fixedWidth
+                className="text-blue-500 hover:cursor-pointer text-lg ml-1"
+                onClick={copyLink}
+              />
+            </Tooltip>
             {showCopy && (
               <span className="text-green-500 absolute top-5 font-bold">
                 Copied!

@@ -5,6 +5,7 @@ import {
   faUnlockAlt,
   faShareSquare,
   faWarning,
+  faGlobe,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useReducer } from "react";
@@ -13,6 +14,7 @@ import useDirectory, { UserFile } from "../../../context/DirectoryContext";
 import useUser from "../../../context/UserContext";
 import InlineInput from "../../misc/InlineInput";
 import ReportModal from "../../misc/ReportModal";
+import Tooltip from "@mui/material/Tooltip";
 
 interface FileListEntryProps {
   file: UserFile;
@@ -74,6 +76,8 @@ const FileListEntry = ({
     setReporting(true);
   };
 
+  console.log(file.private);
+
   let checkClassName =
     "flex w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 group-hover:flex place-self-center";
   if (!checked) {
@@ -96,8 +100,18 @@ const FileListEntry = ({
         close={() => setReporting(false)}
       />
       {user?.id == file.user.id && (
-        <span className="place-self-center text-green-500 basis-5">
-          {!file.private && <FontAwesomeIcon icon={faUnlockAlt} fixedWidth />}
+        <span className="place-self-center text-blue-500 basis-5">
+          {!file.private && (
+            <>
+              <Tooltip
+                title="This file is public. Anyone can download it."
+                arrow
+                classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+              >
+                <FontAwesomeIcon icon={faGlobe} fixedWidth />
+              </Tooltip>
+            </>
+          )}
         </span>
       )}
       <InlineInput
@@ -132,13 +146,23 @@ const FileListEntry = ({
                 className="place-self-center sm:hidden text-blue-500 group-hover:flex hover:cursor-pointer"
                 onClick={() => setRenaming(true)}
               >
-                <FontAwesomeIcon icon={faPenSquare} fixedWidth />
+                <Tooltip
+                  title="Rename"
+                  classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+                >
+                  <FontAwesomeIcon icon={faPenSquare} fixedWidth />
+                </Tooltip>
               </span>
               <span
                 className="place-self-center sm:hidden text-red-500 group-hover:flex hover:cursor-pointer"
                 onClick={deleteFile}
               >
-                <FontAwesomeIcon icon={faTrash} fixedWidth />
+                <Tooltip
+                  title="Delete"
+                  classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+                >
+                  <FontAwesomeIcon icon={faTrash} fixedWidth />
+                </Tooltip>
               </span>
             </>
           )}
@@ -147,7 +171,12 @@ const FileListEntry = ({
               className="place-self-center sm:hidden text-blue-500 group-hover:flex hover:cursor-pointer"
               onClick={copyLink}
             >
-              <FontAwesomeIcon icon={faShareSquare} fixedWidth />
+              <Tooltip
+                title="Copy Link"
+                classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+              >
+                <FontAwesomeIcon icon={faShareSquare} fixedWidth />
+              </Tooltip>
             </span>
           )}
           {user?.id == file.user.id && (
@@ -155,10 +184,15 @@ const FileListEntry = ({
               className="place-self-center sm:hidden text-blue-500 group-hover:flex hover:cursor-pointer"
               onClick={doSetPrivate}
             >
-              <FontAwesomeIcon
-                icon={file.private ? faUnlockAlt : faLock}
-                fixedWidth
-              />
+              <Tooltip
+                title={file.private ? "Make Public" : "Make Private"}
+                classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+              >
+                <FontAwesomeIcon
+                  icon={file.private ? faGlobe : faLock}
+                  fixedWidth
+                />
+              </Tooltip>
             </span>
           )}
           {user && (
@@ -166,7 +200,12 @@ const FileListEntry = ({
               className="place-self-center sm:hidden text-red-500 group-hover:flex hover:cursor-pointer"
               onClick={reportFile}
             >
-              <FontAwesomeIcon icon={faWarning} fixedWidth />
+              <Tooltip
+                title="Report"
+                classes={{ tooltip: "!text-sm  !bg-gray-700" }}
+              >
+                <FontAwesomeIcon icon={faWarning} fixedWidth />
+              </Tooltip>
             </span>
           )}
           {user?.id == file.user.id && (

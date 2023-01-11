@@ -31,7 +31,12 @@ def upload(request: HttpRequest) -> HttpResponse:
     file_instance.file_ref.save(file_name, file)
     file_instance.save()
     cache.delete(f"files:{directory.pk}")
-    return HttpResponse(FileSerializer(file_instance).data)
+    return HttpResponse(
+        FileSerializer(
+            file_instance,
+            context={"request": request},
+        ).data
+    )
 
 
 @require_safe

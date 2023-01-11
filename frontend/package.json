@@ -9,9 +9,12 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"@emotion/react": "^11.10.5",
+		"@emotion/styled": "^11.10.5",
 		"@fortawesome/fontawesome-svg-core": "^6.2.1",
 		"@fortawesome/free-solid-svg-icons": "^6.2.1",
 		"@fortawesome/react-fontawesome": "^0.2.0",
+		"@mui/material": "^5.11.4",
 		"@react-oauth/google": "^0.5.1",
 		"@reduxjs/toolkit": "^1.9.0",
 		"axios": "^1.2.0",
@@ -27,6 +30,7 @@
 		"react-redux": "^8.0.5",
 		"react-router-dom": "^6.4.3",
 		"react-spinners": "^0.13.6",
+		"react-tooltip": "^5.4.0",
 		"sort-by": "^1.2.0",
 		"use-debounce": "^9.0.2"
 	},
