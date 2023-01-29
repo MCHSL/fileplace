@@ -5,6 +5,8 @@ import { ScaleLoader } from "react-spinners";
 import client from "../../client";
 import useUser from "../../context/UserContext";
 import { useGoogleLogin } from "@react-oauth/google";
+// @ts-ignore
+import imgUrl from "../../../../public/images/google-login.png";
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -168,9 +170,9 @@ const LoginForm = () => {
       <div className="flex flex-col gap-1">
         <button
           onClick={() => googleLogin()}
-          className="border border-slate-400 rounded py-2 px-4 before:content-[url('/assets/google-login.svg')]"
+          className="border border-slate-400 rounded py-1/2 px-4"
         >
-          [image here] Sign in with Google
+          <img src={imgUrl} alt="Log in with Google" />
         </button>
         <button
           onClick={() => navigate("/register")}
