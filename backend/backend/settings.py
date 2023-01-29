@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "file_service",
     "rest_framework",
     "mptt",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
