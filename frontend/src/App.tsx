@@ -2,15 +2,15 @@ import { configure } from "axios-hooks";
 import React from "react";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import client from "./app/client";
-import LoginForm from "./app/components/accounts/LoginForm";
-import RegistrationForm from "./app/components/accounts/RegistrationForm";
-import SearchListing from "./app/components/directory_listing/SearchListing";
+import LoginPage from "./app/pages/LoginPage";
+import RegistrationPage from "./app/pages/RegistrationPage";
+import SearchPage from "./app/pages/SearchPage";
 import { DirectoryProvider } from "./app/context/DirectoryContext";
 import { SearchProvider } from "./app/context/SearchContext";
 import { UserProvider } from "./app/context/UserContext";
 import UserPage from "./app/pages/UserPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import SetName from "./app/components/accounts/SetName";
+import SetNamePage from "./app/pages/SetNamePage";
 import ReportsPage from "./app/pages/ReportsPage";
 import AccountPage from "./app/pages/AccountPage";
 import PasswordChangePage from "./app/pages/PasswordChangePage";
@@ -39,19 +39,19 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <LoginForm />,
+        element: <LoginPage />,
       },
       {
         path: "/login",
-        element: <LoginForm />,
+        element: <LoginPage />,
       },
       {
         path: "/register",
-        element: <RegistrationForm />,
+        element: <RegistrationPage />,
       },
       {
         path: "/search/:username",
-        element: <SearchListing />,
+        element: <SearchPage />,
       },
       {
         path: "/user/:username/*",
@@ -59,7 +59,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/set_name",
-        element: <SetName />,
+        element: <SetNamePage />,
       },
       {
         path: "/reports",
@@ -76,7 +76,7 @@ const router = createBrowserRouter([
         path: "/account/verify_email/:token",
         element: <VerifyPage />,
       },
-      { path: "/*", element: <LoginForm /> },
+      { path: "/*", element: <LoginPage /> },
     ],
   },
 ]);

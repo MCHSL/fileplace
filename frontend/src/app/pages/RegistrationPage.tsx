@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Field, Form } from "react-final-form";
 import { useNavigate } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
-import client from "../../client";
+import client from "../client";
 
-const RegistrationForm = () => {
+const RegistrationPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>();
   const [loading, setLoading] = useState<boolean>();
@@ -242,4 +242,4 @@ const RegistrationForm = () => {
   );
 };
 
-export default RegistrationForm;
+export default RegistrationPage;

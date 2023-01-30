@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Field, Form } from "react-final-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
-import client from "../../client";
-import useUser from "../../context/UserContext";
+import client from "../client";
+import useUser from "../context/UserContext";
 import { useGoogleLogin } from "@react-oauth/google";
 // @ts-ignore
-import imgUrl from "../../../../public/images/google-login.png";
+import imgUrl from "./google-login.png";
 
-const LoginForm = () => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, userLoading, refetchUser } = useUser();
@@ -185,4 +185,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default LoginPage;

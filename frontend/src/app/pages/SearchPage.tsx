@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import useSearch from "../../context/SearchContext";
-import FileList from "./FileStuff/FileList";
+import useSearch from "../context/SearchContext";
+import FileList from "../components/directory_listing/file_stuff/FileList";
 import { useDebounce } from "use-debounce";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import DirectoryList from "./DirectoryStuff/DirectoryList";
+import DirectoryList from "../components/directory_listing/directory_stuff/DirectoryList";
 
-const SearchListing = () => {
+const SearchPage = () => {
   const username = useParams<{ username: string }>().username || "";
   const [searchParams, setSearchParams] = useSearchParams();
   const { query, searchLoading, searchResults, doSearch } = useSearch();
@@ -72,4 +72,4 @@ const SearchListing = () => {
   );
 };
 
-export default SearchListing;
+export default SearchPage;

@@ -2,10 +2,10 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useDirectory from "../../context/DirectoryContext";
 import useUser from "../../context/UserContext";
-import DirectoryList from "./DirectoryStuff/DirectoryList";
-import DirectoryPath from "./DirectoryStuff/DirectoryPath";
-import FileList from "./FileStuff/FileList";
-import FileUpload from "./FileUpload/FileUpload";
+import DirectoryList from "./directory_stuff/DirectoryList";
+import DirectoryPath from "./directory_stuff/DirectoryPath";
+import FileList from "./file_stuff/FileList";
+import FileUpload from "./file_upload/FileUpload";
 
 const DirectoryListing = () => {
   const {

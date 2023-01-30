@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Field, Form } from "react-final-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
-import client from "../../client";
-import useUser from "../../context/UserContext";
+import client from "../client";
+import useUser from "../context/UserContext";
 
-const SetName = () => {
+const SetNamePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, userLoading, refetchUser } = useUser();
@@ -113,4 +113,4 @@ const SetName = () => {
   );
 };
 
-export default SetName;
+export default SetNamePage;
