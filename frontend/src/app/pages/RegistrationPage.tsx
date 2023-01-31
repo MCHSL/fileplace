@@ -11,7 +11,6 @@ const RegistrationPage = () => {
   const [success, setSuccess] = useState<boolean>();
 
   const onSubmit = (values: any) => {
-    console.log("hewwo?");
     setError(null);
     setLoading(true);
     client
@@ -235,6 +234,15 @@ const RegistrationPage = () => {
               </>
             )}
             <div className="text-red-500">{error}</div>
+            <div>
+              <button
+                type="button"
+                onClick={() => navigate("/login")}
+                className="shadow border rounded py-2 px-4 min-w-max mt-8"
+              >
+                Back to login
+              </button>
+            </div>
           </form>
         )}
       />
