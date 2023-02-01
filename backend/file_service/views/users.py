@@ -126,7 +126,7 @@ def do_login(request: HttpRequest) -> HttpResponse:
     if user is not None:
         if not user.is_active:
             return HttpResponse("The account is disabled.", status=401)
-        if user.verification_token:  # type: ignore
+        if user.verification_token and not settings.DEBUG:  # type: ignore
             return HttpResponse(
                 "The account's email address has not been verified yet.", status=401
             )
