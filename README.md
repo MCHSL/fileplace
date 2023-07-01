@@ -1,6 +1,6 @@
 # Fileplace
 
-Web app for storing files. An instance is hosted at https://fileabode.com
+Web app for storing files
 
 ## Development
 
